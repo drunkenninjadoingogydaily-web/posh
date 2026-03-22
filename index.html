@@ -1,0 +1,2667 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="theme-color" content="#00A67E"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="POSH"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="description" content="POSH — Point of Sale Hub for your business"/>
+<title>POSH — Point of Sale Hub</title>
+
+<!-- PWA Manifest (inline as blob) -->
+<link rel="manifest" href="/manifest.json"/>
+
+<!-- Favicon + Apple touch icons (all inline SVG/PNG as data URIs) -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2300A67E'/%3E%3Crect x='10' y='10' width='18' height='24' rx='4' fill='white' opacity='0.95'/%3E%3Crect x='10' y='37' width='18' height='14' rx='3' fill='white' opacity='0.55'/%3E%3Crect x='32' y='10' width='22' height='14' rx='3' fill='white' opacity='0.55'/%3E%3Crect x='32' y='28' width='22' height='23' rx='4' fill='%23FFD700' opacity='0.95'/%3E%3C/svg%3E"/>
+<link rel="apple-touch-icon" href="/icon-192.png"/>
+<link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png"/>
+<link rel="apple-touch-icon-ignore" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%2300A67E'/%3E%3Crect x='28' y='28' width='50' height='68' rx='10' fill='white' opacity='0.95'/%3E%3Crect x='28' y='104' width='50' height='40' rx='8' fill='white' opacity='0.55'/%3E%3Crect x='90' y='28' width='62' height='40' rx='8' fill='white' opacity='0.55'/%3E%3Crect x='90' y='78' width='62' height='66' rx='10' fill='%23FFD700' opacity='0.95'/%3E%3C/svg%3E"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+/* ── LIGHT THEME ── */
+:root,[data-theme="light"]{
+  --bg:#F0F4F8;--surface:#FFF;--border:#E8EDF2;--border2:#D1D9E0;
+  --text:#0D1B2A;--muted:#5A7184;--hint:#9DB4C8;
+  --primary:#00A67E;--primary-d:#007F61;--primary-l:#E0F7F1;
+  --amber:#F59E0B;--amber-l:#FEF3C7;--red:#EF4444;--red-l:#FEE2E2;
+  --blue:#3B82F6;--blue-l:#EFF6FF;--purple:#8B5CF6;--purple-l:#EDE9FE;
+  --orange:#F97316;--orange-l:#FFF7ED;
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);
+  --pin-bg:#F0F4F8;
+}
+/* ── DARK THEME ── */
+[data-theme="dark"]{
+  --bg:#0F172A;--surface:#1E293B;--border:#2D3F55;--border2:#3D5068;
+  --text:#F1F5F9;--muted:#94A3B8;--hint:#64748B;
+  --primary:#00C896;--primary-d:#00A67E;--primary-l:#0F3528;
+  --amber:#FBB82A;--amber-l:#2D1F00;--red:#F87171;--red-l:#2D0F0F;
+  --blue:#60A5FA;--blue-l:#0F1D35;--purple:#A78BFA;--purple-l:#1C1335;
+  --orange:#FB923C;--orange-l:#1F0D00;
+  --shadow:0 1px 3px rgba(0,0,0,0.3),0 4px 16px rgba(0,0,0,0.2);
+  --pin-bg:#0F172A;
+}
+[data-theme="dark"] .pin-key{background:var(--surface);color:var(--text)}
+[data-theme="dark"] .search-input{background:var(--bg)}
+[data-theme="dark"] .cat-chip{background:var(--bg)}
+[data-theme="dark"] .prod-emoji-wrap{background:var(--bg)}
+[data-theme="dark"] .cs-items{background:var(--surface)}
+[data-theme="dark"] .toggle-thumb{transform:translateX(22px);background:var(--primary)}
+
+body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:430px;margin:0 auto;overflow-x:hidden;transition:background .25s,color .25s}
+
+/* ── PIN ── */
+#pin-screen{position:fixed;inset:0;background:var(--pin-bg);z-index:999;display:none !important;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;max-width:430px;margin:0 auto;transition:background .25s}
+.pin-logo{width:60px;height:60px;background:var(--primary);border-radius:18px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.pin-logo svg{width:30px;height:30px}
+.pin-brand{font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:4px;color:var(--text)}
+.pin-brand span{color:var(--primary)}
+.pin-sub{font-size:13px;color:var(--muted);margin-bottom:32px}
+.pin-dots{display:flex;gap:14px;margin-bottom:32px}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border2);transition:all .2s}
+.pin-dot.filled{background:var(--primary);border-color:var(--primary)}
+.pin-dot.shake{animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:280px}
+.pin-key{height:68px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;font-size:22px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .1s;gap:2px;color:var(--text)}
+.pin-key:active{background:var(--primary-l);border-color:var(--primary);transform:scale(0.94)}
+.pin-key-sub{font-size:8px;font-weight:600;color:var(--hint);letter-spacing:1px;text-transform:uppercase}
+.pin-hint{font-size:11px;color:var(--hint);margin-top:20px;text-align:center}
+.pin-change-btn{margin-top:10px;font-size:12px;color:var(--primary);background:none;border:none;cursor:pointer;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-weight:600}
+
+/* ── APP SHELL ── */
+#app{display:flex;flex-direction:column;min-height:100vh}
+.screen{flex:1;padding-bottom:72px;display:none;flex-direction:column;animation:fadeUp .18s ease}
+.screen.active{display:flex}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.top-header{background:var(--surface);padding:11px 14px 10px;border-bottom:1px solid var(--border);transition:background .25s}
+.th-row{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.brand{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.brand-logo{width:30px;height:30px;background:var(--primary);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand-name{font-size:16px;font-weight:800;letter-spacing:-0.4px;color:var(--text)}
+.brand-name span{color:var(--primary)}
+.header-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.date-pill{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap}
+.icon-btn-hdr{width:34px;height:34px;background:var(--bg);border:1px solid var(--border);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;font-size:15px;transition:background .2s;flex-shrink:0}
+.notif-dot{width:6px;height:6px;background:var(--red);border-radius:50%;position:absolute;top:5px;right:5px;border:1.5px solid var(--surface)}
+
+/* ── HAMBURGER ── */
+.hamburger{width:34px;height:34px;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;flex-shrink:0;transition:background .15s}
+.hamburger:active{background:var(--primary-l)}
+.ham-line{width:16px;height:2px;background:var(--text);border-radius:2px;transition:background .2s}
+
+/* ── SIDEBAR ── */
+.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;opacity:0;pointer-events:none;transition:opacity .28s}
+.sidebar-overlay.open{opacity:1;pointer-events:all}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:78%;max-width:300px;background:var(--surface);z-index:310;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:8px 0 32px rgba(0,0,0,0.15)}
+.sidebar.open{transform:translateX(0)}
+.sb-header{padding:28px 20px 20px;border-bottom:1px solid var(--border)}
+.sb-logo-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sb-logo{width:42px;height:42px;background:var(--primary);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-brand{font-size:17px;font-weight:800;letter-spacing:-0.5px;color:var(--text)}
+.sb-brand span{color:var(--primary)}
+.sb-tagline{font-size:10px;color:var(--muted);font-weight:500}
+.sb-shop-pill{display:inline-flex;align-items:center;gap:5px;background:var(--primary-l);border:1px solid var(--primary);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--primary-d);margin-top:6px}
+.sb-body{flex:1;overflow-y:auto;padding:10px 0}
+.sb-section-label{font-size:9px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:0.8px;padding:10px 20px 4px}
+.sb-item{display:flex;align-items:center;gap:11px;padding:10px 16px;cursor:pointer;transition:background .12s;border-radius:0}
+.sb-item:active{background:var(--bg)}
+.sb-item-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.sb-item-info{flex:1}
+.sb-item-label{font-size:12px;font-weight:600;color:var(--text)}
+.sb-item-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.sb-item-right{display:flex;align-items:center}
+.sb-notif-badge{background:var(--red);color:white;border-radius:10px;padding:2px 7px;font-size:10px;font-weight:800}
+.sb-divider{height:1px;background:var(--border);margin:6px 20px}
+/* toggle inside sidebar */
+.sb-toggle-track{width:40px;height:22px;background:var(--border2);border-radius:11px;cursor:pointer;position:relative;transition:background .25s;flex-shrink:0}
+.sb-toggle-track.on{background:var(--primary)}
+.sb-toggle-thumb{width:16px;height:16px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform .25s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.sb-toggle-track.on .sb-toggle-thumb{transform:translateX(18px)}
+.sb-footer{padding:16px 20px;border-top:1px solid var(--border)}
+.sb-version{font-size:10px;color:var(--hint);font-weight:600;text-align:center}
+
+/* ── DARK MODE TOGGLE ── */
+.dm-toggle{display:flex;align-items:center;gap:8px}
+.toggle-track{width:42px;height:24px;background:var(--border2);border-radius:12px;cursor:pointer;position:relative;transition:background .25s;flex-shrink:0}
+.toggle-track.on{background:var(--primary)}
+.toggle-thumb{width:18px;height:18px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform .25s,background .25s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.toggle-track.on .toggle-thumb{transform:translateX(18px)}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surface);border-top:1px solid var(--border);display:flex;z-index:100;transition:background .25s}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 0 7px;cursor:pointer;border:none;background:none;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:var(--hint);transition:color .15s}
+.nav-item.active{color:var(--primary)}
+.nav-item svg{width:21px;height:21px;margin-bottom:2px}
+.nav-item span{font-size:9px;font-weight:700;letter-spacing:0.3px;text-transform:uppercase}
+
+/* ── COMMON ── */
+.card{background:var(--surface);border-radius:16px;border:1px solid var(--border);padding:15px;box-shadow:var(--shadow)}
+.btn{padding:12px 18px;border-radius:10px;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .12s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:active{transform:scale(0.96)}
+.btn-primary{background:var(--primary);color:white}
+.btn-secondary{background:var(--bg);color:var(--text);border:1px solid var(--border2)}
+.btn-danger{background:var(--red-l);color:var(--red)}
+.btn-amber{background:var(--amber-l);color:#92400E}
+.btn-full{width:100%}
+.btn-lg{padding:15px;font-size:15px;border-radius:16px}
+.field{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s}
+.field:focus{border-color:var(--primary)}
+.field-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:0.7px;text-transform:uppercase;margin-bottom:5px;display:block}
+.form-group{margin-bottom:13px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.badge-green{background:var(--primary-l);color:var(--primary-d)}
+.badge-amber{background:var(--amber-l);color:#92400E}
+.badge-red{background:var(--red-l);color:var(--red)}
+.badge-blue{background:var(--blue-l);color:var(--blue)}
+.badge-purple{background:var(--purple-l);color:var(--purple)}
+.badge-orange{background:var(--orange-l);color:var(--orange)}
+.alert{border-radius:10px;padding:10px 13px;display:flex;align-items:flex-start;gap:9px;margin-bottom:8px;font-size:12px;font-weight:500}
+.alert-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+.alert-amber{background:var(--amber-l);border:1px solid var(--amber);color:var(--amber)}
+.alert-green{background:var(--primary-l);border:1px solid var(--primary);color:var(--primary-d)}
+.alert-red{background:var(--red-l);border:1px solid var(--red);color:var(--red)}
+.alert-blue{background:var(--blue-l);border:1px solid var(--blue);color:var(--blue)}
+.alert-orange{background:var(--orange-l);border:1px solid var(--orange);color:var(--orange)}
+.screen-sticky-header{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;transition:background .25s}
+.search-wrap{position:relative}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--hint);pointer-events:none}
+.search-input{width:100%;padding:10px 12px 10px 36px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s}
+.search-input:focus{border-color:var(--primary);background:var(--surface)}
+.empty-state{display:flex;flex-direction:column;align-items:center;padding:40px 20px;color:var(--muted)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
+.empty-sub{font-size:12px;text-align:center;line-height:1.5}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:140;display:none}
+.overlay.show{display:block}
+.modal-sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:430px;background:var(--surface);border-radius:22px 22px 0 0;z-index:200;transition:transform .28s cubic-bezier(.4,0,.2,1);max-height:92vh;overflow-y:auto;padding-bottom:20px}
+.modal-sheet.open{transform:translateX(-50%) translateY(0)}
+.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 0}
+.modal-header{padding:13px 18px 11px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-size:16px;font-weight:700;color:var(--text)}
+.modal-close{width:28px;height:28px;background:var(--bg);border-radius:50%;border:none;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.modal-body{padding:15px 18px}
+.section-gap{height:12px}
+.section-title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.section-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px}
+.see-all{font-size:11px;font-weight:700;color:var(--primary);background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif}
+
+/* ── IDLE ALERT BANNER ── */
+.idle-banner{background:var(--orange);color:white;padding:10px 16px;display:none;align-items:center;gap:8px;font-size:12px;font-weight:700;cursor:pointer}
+.idle-banner.show{display:flex}
+.idle-banner-x{margin-left:auto;font-size:16px;opacity:0.8}
+
+/* ── DASHBOARD ── */
+.dash-header{padding:16px 18px 10px}
+.dash-header h2{font-size:21px;font-weight:800;letter-spacing:-0.4px;color:var(--text)}
+.dash-header p{font-size:12px;color:var(--muted);margin-top:2px}
+.stats-grid{padding:0 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat-card{background:var(--surface);border-radius:16px;border:1px solid var(--border);padding:12px 12px 10px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.sc-green::before{background:var(--primary)}.sc-amber::before{background:var(--amber)}.sc-blue::before{background:var(--blue)}.sc-red::before{background:var(--red)}.sc-purple::before{background:var(--purple)}
+.stat-label{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:0.4px;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.stat-label-ico{font-size:11px}
+.sparkline{display:block;width:100%;height:24px;margin-top:6px;opacity:0.8}
+.stat-value{font-size:15px;font-weight:800;letter-spacing:-0.3px;color:var(--text);line-height:1.2;word-break:break-word}
+.stat-sub{font-size:9px;font-weight:600;margin-top:3px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-sub.up{color:var(--primary)}.stat-sub.down{color:var(--red)}
+/* comparison badge */
+.vs-badge{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;margin-top:4px}
+.vs-up{background:var(--primary-l);color:var(--primary-d)}
+.vs-down{background:var(--red-l);color:var(--red)}
+.vs-flat{background:var(--bg);color:var(--muted)}
+.progress-wrap{padding:0 14px}
+.progress-card{background:var(--surface);border-radius:16px;border:1px solid var(--border);padding:13px 14px;box-shadow:var(--shadow)}
+.prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.prog-title{font-size:13px;font-weight:600;color:var(--text)}.prog-pct{font-size:13px;font-weight:800;color:var(--primary)}
+.prog-bar-bg{background:var(--bg);border-radius:6px;height:7px;overflow:hidden}
+.prog-bar-fill{height:100%;border-radius:6px;transition:width 1.2s ease}
+.prog-sub{font-size:11px;color:var(--muted);margin-top:6px}
+.qa-section{padding:0 14px}
+.qa-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:9px}
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.qa-btn{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;box-shadow:var(--shadow);transition:all .15s}
+.qa-btn:active{transform:scale(0.92)}
+.qa-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.qa-label{font-size:9px;font-weight:700;color:var(--text);text-align:center;line-height:1.2}
+.insights-wrap{padding:0 14px}
+.recent-wrap{padding:0 14px}
+
+/* ── SALES ── */
+.cat-scroll{padding:9px 14px;display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;background:var(--surface);border-bottom:1px solid var(--border)}
+.cat-scroll::-webkit-scrollbar{display:none}
+.cat-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);transition:all .15s;font-family:'Outfit',sans-serif}
+.cat-chip.active{background:var(--primary);color:white;border-color:var(--primary)}
+.fav-strip{padding:11px 14px 0}
+.fav-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:7px}
+.fav-row{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none}
+.fav-row::-webkit-scrollbar{display:none}
+.fav-pill{display:flex;align-items:center;gap:5px;background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:6px 11px;cursor:pointer;white-space:nowrap;box-shadow:var(--shadow)}
+.fav-pill:active{transform:scale(0.94)}
+.fav-pill span{font-size:11px;font-weight:600;color:var(--text)}
+.fav-pill em{font-style:normal;font-size:10px;font-weight:700;color:var(--primary)}
+.products-grid{padding:11px 14px;display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.prod-card{background:var(--surface);border-radius:16px;border:1.5px solid var(--border);padding:13px 11px;cursor:pointer;transition:all .12s;box-shadow:var(--shadow);position:relative;display:flex;flex-direction:column}
+.prod-card:active{transform:scale(0.95)}
+.prod-card.disabled{opacity:0.45;cursor:not-allowed}
+.prod-card.in-cart{border-color:var(--primary);background:var(--primary-l)}
+.prod-fav{position:absolute;top:8px;left:8px;font-size:12px;cursor:pointer;opacity:0.35;transition:opacity .15s;z-index:2}
+.prod-fav.on{opacity:1}
+.prod-stock-b{position:absolute;top:7px;right:7px}
+.prod-emoji-wrap{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:22px;margin:6px 0 8px;background:var(--bg)}
+.prod-name{font-size:12px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:2px;flex:1}
+.prod-unit{font-size:10px;color:var(--hint);margin-bottom:5px}
+.prod-bottom{display:flex;align-items:center;justify-content:space-between}
+.prod-price{font-size:15px;font-weight:800;color:var(--primary)}
+.prod-add{width:26px;height:26px;background:var(--primary);border-radius:7px;display:flex;align-items:center;justify-content:center;color:white;font-size:17px;line-height:1}
+.cart-fab{position:fixed;bottom:78px;right:14px;background:var(--primary);color:white;border:none;width:54px;height:54px;border-radius:50%;box-shadow:0 4px 20px rgba(0,166,126,0.4);cursor:pointer;display:none;align-items:center;justify-content:center;z-index:90}
+.cart-badge{position:absolute;top:-2px;right:-2px;background:var(--red);color:white;border-radius:50%;width:19px;height:19px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid var(--surface)}
+.cart-sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:430px;background:var(--surface);border-radius:22px 22px 0 0;z-index:150;transition:transform .28s cubic-bezier(.4,0,.2,1);max-height:85vh;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,0.15)}
+.cart-sheet.open{transform:translateX(-50%) translateY(0)}
+.cs-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:11px auto 3px}
+.cs-header{padding:8px 18px 10px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.cs-title{font-size:16px;font-weight:700;color:var(--text)}
+.cs-clear{font-size:11px;color:var(--red);font-weight:700;background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif}
+.cs-items{overflow-y:auto;flex:1;padding:6px 14px}
+.ci-row-wrap{position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+.ci-row-wrap:last-child{border:none}
+.ci-row-delete-bg{position:absolute;right:0;top:0;bottom:0;width:70px;background:var(--red);display:flex;align-items:center;justify-content:center;color:white;font-size:20px;border-radius:0 8px 8px 0}
+.ci-row{display:flex;align-items:center;padding:9px 0;gap:9px;background:var(--surface);transition:transform .2s ease;touch-action:pan-y;position:relative;will-change:transform}
+.ci-emoji{font-size:18px}
+.ci-info{flex:1}
+.ci-name{font-size:12px;font-weight:700;color:var(--text)}
+.ci-uprice{font-size:10px;color:var(--muted)}
+.ci-qty{display:flex;align-items:center;gap:7px}
+.cq-btn{width:26px;height:26px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:var(--text)}
+.cq-n{font-size:12px;font-weight:800;min-width:16px;text-align:center;color:var(--text)}
+.ci-total{font-size:13px;font-weight:800;min-width:60px;text-align:right;color:var(--text)}
+.ci-del{color:var(--hint);background:none;border:none;cursor:pointer;font-size:15px;padding:0 2px}
+.cs-footer{padding:12px 14px;border-top:1px solid var(--border)}
+.cs-totals{margin-bottom:11px}
+.cs-total-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding:2px 0}
+.cs-total-row.grand{font-size:15px;font-weight:800;color:var(--text);padding-top:7px;border-top:1px solid var(--border);margin-top:4px}
+
+/* ── CHANGE CALCULATOR ── */
+.change-calc{background:var(--bg);border-radius:10px;padding:12px;margin-top:12px;border:1.5px solid var(--border)}
+.change-calc-title{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px}
+.change-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.change-row input{flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px;font-weight:700;color:var(--text);background:var(--surface);outline:none}
+.change-row input:focus{border-color:var(--primary)}
+.change-result{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--surface);border-radius:8px;border:1.5px solid var(--border)}
+.change-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px}
+.change-value{font-size:18px;font-weight:800}
+.change-value.ok{color:var(--primary)}
+.change-value.short{color:var(--red)}
+.quick-amounts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.qa-amount{padding:5px 10px;background:var(--surface);border:1.5px solid var(--border);border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;color:var(--text);transition:all .12s}
+.qa-amount:active{background:var(--primary-l);border-color:var(--primary);color:var(--primary-d)}
+
+/* ── CHECKOUT ── */
+.receipt-brand{text-align:center;padding:14px 0 10px;border-bottom:1.5px dashed var(--border)}
+.receipt-name{font-size:22px;font-weight:800;letter-spacing:-0.5px;color:var(--text)}
+.receipt-name span{color:var(--primary)}
+.receipt-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.receipt-items{padding:10px 0}
+.ri-line{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;color:var(--text)}
+.ri-divider{border:none;border-top:1.5px dashed var(--border);margin:7px 0}
+.ri-grand{display:flex;justify-content:space-between;font-size:15px;font-weight:800;padding:6px 0;color:var(--text)}
+.receipt-footer-txt{text-align:center;font-size:11px;color:var(--muted);padding:10px 0;border-top:1.5px dashed var(--border);margin-top:4px;line-height:1.7}
+
+/* ── INVENTORY ── */
+.inv-item{background:var(--surface);border-radius:10px;border:1.5px solid var(--border);padding:11px;display:flex;align-items:center;gap:9px;box-shadow:var(--shadow)}
+.inv-item.low{border-color:var(--amber)}.inv-item.out{border-color:var(--red)}
+.ii-emoji{font-size:24px}.ii-info{flex:1}
+.ii-name{font-size:13px;font-weight:700;color:var(--text)}
+.ii-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.ii-supplier{font-size:10px;color:var(--hint);margin-top:1px}
+.ii-right{text-align:right}
+.ii-price{font-size:14px;font-weight:800;color:var(--primary)}
+.ii-margin{font-size:10px;color:var(--muted);margin-top:1px}
+.ii-actions{display:flex;gap:5px;margin-top:5px;justify-content:flex-end}
+.ii-btn{width:28px;height:28px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px}
+.ii-btn:active{transform:scale(0.88)}
+.emoji-picker{display:flex;flex-wrap:wrap;gap:7px;margin-top:5px}
+.ep-item{width:40px;height:40px;border-radius:9px;border:2px solid transparent;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer}
+.ep-item.sel{border-color:var(--primary);background:var(--primary-l)}
+/* restock reminder chip */
+.restock-chip{display:inline-flex;align-items:center;gap:4px;background:var(--orange-l);border:1px solid var(--orange);border-radius:20px;padding:3px 8px;font-size:9px;font-weight:700;color:var(--orange);margin-top:3px;cursor:pointer}
+
+/* ── REPORTS ── */
+.rpt-tabs{display:flex;background:var(--bg);border-radius:10px;padding:3px;gap:2px}
+.rpt-tab{flex:1;padding:7px 4px;text-align:center;font-size:11px;font-weight:700;border-radius:7px;cursor:pointer;border:none;background:none;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:var(--muted);transition:all .15s;text-transform:uppercase;letter-spacing:0.3px}
+.rpt-tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi-card{background:var(--surface);border-radius:10px;border:1px solid var(--border);padding:11px 10px;text-align:center;box-shadow:var(--shadow)}
+.kpi-val{font-size:16px;font-weight:800;letter-spacing:-0.3px;color:var(--text)}
+.kpi-lbl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-top:3px}
+.chart-card{background:var(--surface);border-radius:16px;border:1px solid var(--border);padding:14px;box-shadow:var(--shadow)}
+.chart-title{font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text);display:flex;justify-content:space-between;align-items:center}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:110px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%}
+.bar-fill{width:100%;background:var(--primary);border-radius:4px 4px 0 0;transition:height .8s ease;min-height:3px}
+.bar-label{font-size:9px;color:var(--muted);font-weight:600;white-space:nowrap}
+.bar-val{font-size:9px;font-weight:700;color:var(--text)}
+.top-prod-list{display:flex;flex-direction:column;gap:7px}
+.tp-item{display:flex;align-items:center;gap:9px;background:var(--surface);border-radius:10px;border:1px solid var(--border);padding:10px 11px;box-shadow:var(--shadow)}
+.tp-rank{font-size:12px;font-weight:800;color:var(--muted);min-width:18px}
+.tp-emoji{font-size:18px}
+.tp-name{flex:1;font-size:12px;font-weight:700;color:var(--text)}
+.tp-bar-wrap{width:40px;height:5px;background:var(--bg);border-radius:3px;overflow:hidden;margin-right:4px}
+.tp-bar{height:100%;background:var(--primary);border-radius:3px}
+.tp-rev{font-size:12px;font-weight:800;color:var(--primary)}
+.tp-qty{font-size:10px;color:var(--muted)}
+.net-profit-banner{background:var(--primary);border-radius:16px;padding:16px;color:white;text-align:center;margin-bottom:14px}
+.npb-label{font-size:11px;font-weight:700;opacity:0.8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.npb-value{font-size:26px;font-weight:800;letter-spacing:-0.5px}
+.npb-sub{font-size:11px;opacity:0.75;margin-top:3px}
+/* yesterday comparison card */
+.vs-card{background:var(--surface);border-radius:16px;border:1px solid var(--border);padding:14px;box-shadow:var(--shadow);margin-bottom:14px}
+.vs-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px}
+.vs-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
+.vs-row:last-child{border:none}
+.vs-metric{font-size:12px;color:var(--muted);font-weight:600}
+.vs-vals{display:flex;gap:10px;align-items:center}
+.vs-today{font-size:13px;font-weight:800;color:var(--text)}
+.vs-yest{font-size:11px;color:var(--muted)}
+.vs-change{font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px}
+.vs-change.up{background:var(--primary-l);color:var(--primary-d)}
+.vs-change.down{background:var(--red-l);color:var(--red)}
+.vs-change.flat{background:var(--bg);color:var(--muted)}
+
+/* ── DEBT / CREDIT ── */
+.debt-item{background:var(--surface);border-radius:10px;border:1.5px solid var(--border);padding:11px;display:flex;align-items:center;gap:9px;box-shadow:var(--shadow)}
+.debt-item.pending{border-color:var(--amber)}
+.debt-item.partial{border-color:var(--blue)}
+.debt-item.paid{opacity:0.6;border-color:var(--primary)}
+.di-avatar{width:36px;height:36px;border-radius:50%;background:var(--blue-l);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:var(--blue);flex-shrink:0}
+.di-info{flex:1}
+.di-name{font-size:13px;font-weight:700;color:var(--text)}
+.di-meta{font-size:11px;color:var(--muted);margin-top:1px}
+.di-items{font-size:10px;color:var(--hint);margin-top:2px}
+.di-right{text-align:right}
+.di-amount{font-size:14px;font-weight:800;color:var(--red)}
+.di-amount.paid{color:var(--primary)}
+.di-actions{display:flex;gap:5px;margin-top:5px;justify-content:flex-end}
+.debt-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.ds-card{background:var(--surface);border-radius:10px;border:1px solid var(--border);padding:10px;text-align:center;box-shadow:var(--shadow)}
+.ds-val{font-size:16px;font-weight:800;color:var(--text)}
+.ds-lbl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-top:2px}
+
+/* ── HISTORY ── */
+.txn-item{background:var(--surface);border-radius:10px;border:1.5px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
+.txn-row{display:flex;align-items:center;padding:11px;gap:9px;cursor:pointer}
+.txn-icon{width:36px;height:36px;border-radius:9px;background:var(--primary-l);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.txn-info{flex:1}
+.txn-id{font-size:12px;font-weight:800;color:var(--text)}
+.txn-time{font-size:10px;color:var(--muted);margin-top:1px}
+.txn-preview{font-size:10px;color:var(--hint);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.txn-right{text-align:right}
+.txn-total{font-size:15px;font-weight:800;color:var(--text)}
+.txn-profit{font-size:10px;font-weight:700;color:var(--primary)}
+.txn-chevron{font-size:11px;color:var(--hint);transition:transform .2s;margin-left:4px}
+.txn-chevron.open{transform:rotate(180deg)}
+.txn-detail{display:none;padding:0 11px 11px;border-top:1px solid var(--border)}
+.txn-detail.open{display:block}
+.txd-row{display:flex;justify-content:space-between;font-size:11px;padding:3px 0;color:var(--muted)}
+.txd-row.b{font-weight:800;color:var(--text);font-size:12px;padding-top:6px;border-top:1px solid var(--border);margin-top:4px}
+
+/* ── SETTINGS ── */
+.settings-section{padding:0 14px;margin-bottom:14px}
+.settings-group{background:var(--surface);border-radius:16px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
+.settings-row{display:flex;align-items:center;padding:13px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+.settings-row:last-child{border:none}
+.settings-row:active{background:var(--bg)}
+.sr-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-right:11px;flex-shrink:0}
+.sr-info{flex:1}
+.sr-label{font-size:13px;font-weight:600;color:var(--text)}
+.sr-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.sr-arrow{color:var(--hint);font-size:12px}
+.settings-title-row{padding:0 0 9px}
+.settings-group-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+
+/* ── EXPENSE ── */
+.exp-icon-wrap{width:36px;height:36px;border-radius:9px;background:var(--red-l);display:flex;align-items:center;justify-content:center;font-size:16px}
+.exp-amount{font-size:14px;font-weight:800;color:var(--red)}
+
+/* ── SPLASH SCREEN ── */
+#splash{position:fixed;inset:0;background:#00A67E;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:430px;margin:0 auto}
+#splash.hide{animation:splashOut .6s ease forwards}
+@keyframes splashOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.05);pointer-events:none}}
+.splash-logo-ring{width:90px;height:90px;border-radius:26px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;margin-bottom:28px;animation:ringPop .5s .2s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes ringPop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.splash-letters{display:flex;gap:0;margin-bottom:14px}
+.splash-letter{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:52px;font-weight:800;color:white;letter-spacing:-2px;opacity:0;transform:translateY(30px);animation:letterRise .4s ease forwards}
+.splash-letter:nth-child(1){animation-delay:.4s}
+.splash-letter:nth-child(2){animation-delay:.55s}
+.splash-letter:nth-child(3){animation-delay:.7s;color:#FFD700}
+.splash-letter:nth-child(4){animation-delay:.85s}
+@keyframes letterRise{to{opacity:1;transform:translateY(0)}}
+.splash-tagline{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:13px;font-weight:500;color:rgba(255,255,255,0.75);letter-spacing:1.5px;text-transform:uppercase;opacity:0;animation:fadeSlideUp .5s 1.15s ease forwards}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.splash-bar-bg{width:160px;height:3px;background:rgba(255,255,255,0.2);border-radius:2px;margin-top:36px;overflow:hidden;opacity:0;animation:fadeSlideUp .4s 1.3s ease forwards}
+.splash-bar-fill{height:100%;width:0%;background:white;border-radius:2px;animation:barFill 2.8s 1.4s ease forwards}
+@keyframes barFill{0%{width:0%}60%{width:70%}85%{width:88%}100%{width:100%}}
+.splash-dots{display:flex;gap:6px;margin-top:14px;opacity:0;animation:fadeSlideUp .4s 1.5s ease forwards}
+.splash-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.4);animation:dotPulse 1.2s 1.6s ease-in-out infinite alternate}
+.splash-dot:nth-child(2){animation-delay:1.8s}
+.splash-dot:nth-child(3){animation-delay:2.0s}
+@keyframes dotPulse{to{background:white;transform:scale(1.3)}}
+
+/* ── PWA INSTALL BANNER ── */
+.pwa-banner{position:fixed;bottom:80px;left:12px;right:12px;background:var(--surface);border:1.5px solid var(--primary);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,166,126,0.2);z-index:500;transform:translateY(20px);opacity:0;pointer-events:none;transition:all .35s cubic-bezier(.34,1.56,.64,1)}
+.pwa-banner.show{transform:translateY(0);opacity:1;pointer-events:all}
+.pwa-banner-icon{width:44px;height:44px;background:var(--primary);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pwa-banner-text{flex:1}
+.pwa-banner-title{font-size:13px;font-weight:700;color:var(--text)}
+.pwa-banner-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.pwa-banner-btns{display:flex;flex-direction:column;gap:5px;flex-shrink:0}
+.pwa-install-btn{padding:7px 14px;background:var(--primary);color:white;border:none;border-radius:8px;font-family:'Outfit',-apple-system,sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.pwa-later-btn{padding:5px 14px;background:none;color:var(--muted);border:none;font-family:'Outfit',-apple-system,sans-serif;font-size:11px;font-weight:600;cursor:pointer;text-align:center}
+
+/* ── CONFIRM MODAL ── */
+.confirm-modal{position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .2s}
+.confirm-modal.open{opacity:1;pointer-events:all}
+.confirm-bg{position:absolute;inset:0;background:rgba(0,0,0,0.55)}
+.confirm-card{position:relative;background:var(--surface);border-radius:20px;padding:24px 22px 20px;width:100%;max-width:300px;box-shadow:0 20px 60px rgba(0,0,0,0.25);transform:scale(0.9);transition:transform .22s cubic-bezier(.34,1.56,.64,1);text-align:center}
+.confirm-modal.open .confirm-card{transform:scale(1)}
+.confirm-icon{font-size:36px;margin-bottom:10px;display:block}
+.confirm-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:5px}
+.confirm-sub{font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.5}
+.confirm-btns{display:flex;gap:10px}
+.confirm-cancel{flex:1;padding:12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',-apple-system,sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--text)}
+.confirm-cancel:active{transform:scale(0.96)}
+.confirm-ok{flex:1;padding:12px;background:var(--primary);border:none;border-radius:10px;font-family:'Outfit',-apple-system,sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:white}
+.confirm-ok.danger{background:var(--red)}
+.confirm-ok:active{transform:scale(0.96)}
+.toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%) translateY(8px);background:#0D1B2A;color:white;padding:9px 17px;border-radius:22px;font-size:12px;font-weight:600;z-index:600;opacity:0;transition:all .22s;pointer-events:none;white-space:nowrap}
+[data-theme="dark"] .toast{background:#F1F5F9;color:#0D1B2A}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+::-webkit-scrollbar{width:0;height:0}
+
+/* ── AUTH SCREEN ── */
+#auth-screen{position:fixed;inset:0;background:var(--bg);z-index:990;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
+.auth-card{width:100%;max-width:360px;background:var(--surface);border-radius:24px;padding:28px 24px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:24px;justify-content:center}
+.auth-logo-icon{width:44px;height:44px;border-radius:13px;background:var(--primary);display:flex;align-items:center;justify-content:center}
+.auth-brand{font-family:'Outfit',-apple-system,sans-serif;font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.5px}
+.auth-brand span{color:var(--primary)}
+.auth-tabs{display:flex;background:var(--bg);border-radius:12px;padding:4px;margin-bottom:20px;gap:4px}
+.auth-tab{flex:1;padding:8px;border:none;background:none;border-radius:9px;font-family:'Outfit',-apple-system,sans-serif;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s}
+.auth-tab.active{background:var(--surface);color:var(--primary);box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.auth-form{display:flex;flex-direction:column;gap:12px}
+.auth-field-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;display:block}
+.auth-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:11px;font-family:'Outfit',-apple-system,sans-serif;font-size:15px;font-weight:500;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s}
+.auth-input:focus{border-color:var(--primary)}
+.auth-btn{width:100%;padding:14px;background:var(--primary);color:white;border:none;border-radius:12px;font-family:'Outfit',-apple-system,sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:4px}
+.auth-btn:active{transform:scale(0.98)}
+.auth-btn:disabled{opacity:0.6;cursor:not-allowed}
+.auth-error{font-size:12px;color:var(--red);background:var(--red-l);padding:9px 12px;border-radius:8px;display:none;font-weight:500}
+.auth-forgot{text-align:center;font-size:12px;color:var(--primary);cursor:pointer;font-weight:600;margin-top:4px}
+.auth-divider{text-align:center;font-size:11px;color:var(--hint);margin:4px 0}
+</style>
+</head>
+<body>
+
+
+<!-- ══════════════════════════════════
+     AUTH SCREEN
+══════════════════════════════════ -->
+<div id="auth-screen" style="display:none">
+  <div class="auth-card">
+    <!-- Logo -->
+    <div class="auth-logo">
+      <div class="auth-logo-icon">
+        <svg viewBox="0 0 32 32" fill="none" width="26" height="26"><rect width="32" height="32" rx="9" fill="#00A67E"/><rect x="7" y="7" width="8" height="10" rx="2.5" fill="white" opacity="0.95"/><rect x="7" y="19" width="8" height="6" rx="2" fill="white" opacity="0.6"/><rect x="17" y="7" width="8" height="6" rx="2" fill="white" opacity="0.6"/><rect x="17" y="15" width="8" height="10" rx="2.5" fill="#FFD700" opacity="0.95"/></svg>
+      </div>
+      <span class="auth-brand">PO<span>S</span>H</span>
+    </div>
+    <!-- Tabs -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="auth-tab-signup" onclick="showAuthTab('signup')">Create Account</button>
+      <button class="auth-tab" id="auth-tab-login" onclick="showAuthTab('login')">Sign In</button>
+    </div>
+    <!-- Sign Up Form -->
+    <div id="auth-signup-form" class="auth-form">
+      <div>
+        <label class="auth-field-label">Your Name</label>
+        <input class="auth-input" id="auth-name" type="text" placeholder="e.g. Grace Wanjiku" maxlength="30"/>
+      </div>
+      <div>
+        <label class="auth-field-label">Shop Name</label>
+        <input class="auth-input" id="auth-shop" type="text" placeholder="e.g. Grace Fish Market" maxlength="30"/>
+      </div>
+      <div>
+        <label class="auth-field-label">Email Address</label>
+        <input class="auth-input" id="auth-email" type="email" placeholder="you@email.com"/>
+      </div>
+      <div>
+        <label class="auth-field-label">Password</label>
+        <input class="auth-input" id="auth-pass" type="password" placeholder="Min. 6 characters"/>
+      </div>
+      <div>
+        <label class="auth-field-label">Confirm Password</label>
+        <input class="auth-input" id="auth-confirm-pass" type="password" placeholder="Repeat password"/>
+      </div>
+      <div id="auth-error" class="auth-error"></div>
+      <button class="auth-btn" id="auth-signup-btn" onclick="poshSignUp()">Create Account</button>
+      <div class="auth-divider">Your data is private and secure 🔒</div>
+    </div>
+    <!-- Sign In Form -->
+    <div id="auth-login-form" class="auth-form" style="display:none">
+      <div>
+        <label class="auth-field-label">Email Address</label>
+        <input class="auth-input" id="auth-login-email" type="email" placeholder="you@email.com"/>
+      </div>
+      <div>
+        <label class="auth-field-label">Password</label>
+        <input class="auth-input" id="auth-login-pass" type="password" placeholder="Your password"/>
+      </div>
+      <div id="auth-login-error" class="auth-error"></div>
+      <button class="auth-btn" id="auth-login-btn" onclick="poshSignIn()">Sign In</button>
+      <div class="auth-forgot" onclick="poshForgotPassword()">Forgot password?</div>
+    </div>
+  </div>
+</div>
+
+<!-- SPLASH SCREEN -->
+<div id="splash">
+  <div class="splash-logo-ring">
+    <svg viewBox="0 0 52 52" fill="none" width="52" height="52">
+      <rect width="52" height="52" rx="14" fill="rgba(255,255,255,0.2)"/>
+      <rect x="10" y="10" width="13" height="16" rx="3.5" fill="white" opacity="0.95"/>
+      <rect x="10" y="29" width="13" height="10" rx="3" fill="white" opacity="0.55"/>
+      <rect x="26" y="10" width="16" height="11" rx="3" fill="white" opacity="0.55"/>
+      <rect x="26" y="24" width="16" height="15" rx="3.5" fill="#FFD700" opacity="0.95"/>
+    </svg>
+  </div>
+  <div class="splash-letters">
+    <span class="splash-letter">P</span>
+    <span class="splash-letter">O</span>
+    <span class="splash-letter">S</span>
+    <span class="splash-letter">H</span>
+  </div>
+  <div class="splash-tagline">Point of Sale Hub</div>
+  <div class="splash-bar-bg"><div class="splash-bar-fill"></div></div>
+  <div class="splash-dots">
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+  </div>
+</div>
+
+<!-- PIN SCREEN -->
+<div id="pin-screen" style="display:none">
+  <div class="pin-logo">
+    <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" width="60" height="60">
+      <rect width="60" height="60" rx="16" fill="#00A67E"/>
+      <!-- top-left: tall block (P) -->
+      <rect x="9" y="9" width="15" height="22" rx="4" fill="white" opacity="0.95"/>
+      <!-- bottom-left: wide block -->
+      <rect x="9" y="34" width="15" height="17" rx="4" fill="white" opacity="0.55"/>
+      <!-- top-right: short block -->
+      <rect x="27" y="9" width="24" height="17" rx="4" fill="white" opacity="0.55"/>
+      <!-- bottom-right: accent gold block (H) -->
+      <rect x="27" y="29" width="24" height="22" rx="4" fill="#FFD700" opacity="0.95"/>
+      <!-- subtle grid line -->
+      <rect x="9" y="29" width="42" height="2" rx="1" fill="white" opacity="0.2"/>
+      <rect x="25" y="9" width="2" height="42" rx="1" fill="white" opacity="0.2"/>
+    </svg>
+  </div>
+  <div class="pin-brand">PO<span>S</span>H</div>
+  <div class="pin-sub">Point of Sale Hub</div>
+  <div class="pin-dots">
+    <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="pin-pad">
+    <div class="pin-key" onclick="_pinPress('1')">1</div>
+    <div class="pin-key" onclick="_pinPress('2')"><span>2</span><span class="pin-key-sub">ABC</span></div>
+    <div class="pin-key" onclick="_pinPress('3')"><span>3</span><span class="pin-key-sub">DEF</span></div>
+    <div class="pin-key" onclick="_pinPress('4')"><span>4</span><span class="pin-key-sub">GHI</span></div>
+    <div class="pin-key" onclick="_pinPress('5')"><span>5</span><span class="pin-key-sub">JKL</span></div>
+    <div class="pin-key" onclick="_pinPress('6')"><span>6</span><span class="pin-key-sub">MNO</span></div>
+    <div class="pin-key" onclick="_pinPress('7')"><span>7</span><span class="pin-key-sub">PQRS</span></div>
+    <div class="pin-key" onclick="_pinPress('8')"><span>8</span><span class="pin-key-sub">TUV</span></div>
+    <div class="pin-key" onclick="_pinPress('9')"><span>9</span><span class="pin-key-sub">WXYZ</span></div>
+    <div class="pin-key" style="opacity:0;pointer-events:none"></div>
+    <div class="pin-key" onclick="_pinPress('0')">0</div>
+    <div class="pin-key" onclick="_pinDel()">⌫</div>
+  </div>
+  <div class="pin-hint" id="pin-hint">Default PIN: 1234</div>
+  <button class="pin-change-btn" onclick="startPinChange()">Change PIN</button>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none;flex-direction:column;min-height:100vh">
+
+  <!-- IDLE BANNER -->
+  <div class="idle-banner" id="idle-banner" onclick="dismissIdle()">
+    ⏰ <span id="idle-msg">No sales in 30 minutes — tap to dismiss</span>
+    <span class="idle-banner-x">×</span>
+  </div>
+
+  <!-- SIDEBAR OVERLAY + PANEL -->
+  <div class="sidebar-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sb-header" style="position:relative">
+      <button onclick="closeSidebar()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;background:var(--bg);border:1.5px solid var(--border);border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-family:Outfit,sans-serif;line-height:1">×</button>
+      <div class="sb-logo-row">
+        <div class="sb-logo">
+          <svg viewBox="0 0 32 32" fill="none" width="32" height="32"><rect width="32" height="32" rx="9" fill="#00A67E"/><rect x="7" y="7" width="8" height="10" rx="2.5" fill="white" opacity="0.95"/><rect x="7" y="19" width="8" height="6" rx="2" fill="white" opacity="0.6"/><rect x="17" y="7" width="8" height="6" rx="2" fill="white" opacity="0.6"/><rect x="17" y="15" width="8" height="10" rx="2.5" fill="#FFD700" opacity="0.95"/></svg>
+        </div>
+        <div>
+          <div class="sb-brand">PO<span>S</span>H</div>
+          <div class="sb-tagline">Point of Sale Hub</div>
+        </div>
+      </div>
+      <div class="sb-shop-pill" id="sb-shop-name">🏪 POSH Shop</div>
+    </div>
+
+    <div class="sb-body">
+      <div class="sb-section-label">Appearance</div>
+      <div class="sb-item" onclick="toggleDark()">
+        <div class="sb-item-icon" style="background:#1E293B">🌙</div>
+        <div class="sb-item-info">
+          <div class="sb-item-label">Dark Mode</div>
+          <div class="sb-item-sub" id="sb-dark-sub">Currently Light</div>
+        </div>
+        <div class="sb-item-right">
+          <div class="sb-toggle-track" id="sb-dm-track"><div class="sb-toggle-thumb"></div></div>
+        </div>
+      </div>
+
+      <div class="sb-divider"></div>
+      <div class="sb-section-label">Notifications</div>
+      <div class="sb-item" onclick="closeSidebar();switchTab('reports')">
+        <div class="sb-item-icon" style="background:var(--red-l)">🔔</div>
+        <div class="sb-item-info">
+          <div class="sb-item-label">Alerts</div>
+          <div class="sb-item-sub" id="sb-alerts-sub">No active alerts</div>
+        </div>
+        <div class="sb-item-right" id="sb-notif-badge-wrap"></div>
+      </div>
+      <div class="sb-item" onclick="closeSidebar();openIdleModal()">
+        <div class="sb-item-icon" style="background:var(--orange-l)">⏰</div>
+        <div class="sb-item-info">
+          <div class="sb-item-label">Idle Alert Timer</div>
+          <div class="sb-item-sub" id="sb-idle-sub">After 30 mins</div>
+        </div>
+        <div class="sb-item-right"><span style="font-size:12px;color:var(--hint)">›</span></div>
+      </div>
+
+      <div class="sb-divider"></div>
+      <div class="sb-section-label">Business</div>
+      <div class="sb-item" onclick="closeSidebar();switchTab('settings')">
+        <div class="sb-item-icon" style="background:var(--primary-l)">⚙️</div>
+        <div class="sb-item-info">
+          <div class="sb-item-label">Settings</div>
+          <div class="sb-item-sub">Goals, backup, export</div>
+        </div>
+        <div class="sb-item-right"><span style="font-size:12px;color:var(--hint)">›</span></div>
+      </div>
+      <div class="sb-item" onclick="closeSidebar();backupData()">
+        <div class="sb-item-icon" style="background:var(--blue-l)">💾</div>
+        <div class="sb-item-info">
+          <div class="sb-item-label">Backup Data</div>
+          <div class="sb-item-sub">Download JSON backup</div>
+        </div>
+        <div class="sb-item-right"><span style="font-size:12px;color:var(--hint)">›</span></div>
+      </div>
+      <div class="sb-item" onclick="closeSidebar();exportPDF()">
+        <div class="sb-item-icon" style="background:var(--amber-l)">📄</div>
+        <div class="sb-item-info">
+          <div class="sb-item-label">Export PDF Report</div>
+          <div class="sb-item-sub">Formatted sales report</div>
+        </div>
+        <div class="sb-item-right"><span style="font-size:12px;color:var(--hint)">›</span></div>
+      </div>
+
+      <div class="sb-divider"></div>
+      <div class="sb-section-label">Security</div>
+      <div class="sb-item" onclick="closeSidebar();startPinChange()">
+        <div class="sb-item-icon" style="background:var(--purple-l)">🔐</div>
+        <div class="sb-item-info">
+          <div class="sb-item-label">Change PIN</div>
+          <div class="sb-item-sub">Update your 4-digit PIN</div>
+        </div>
+        <div class="sb-item-right"><span style="font-size:12px;color:var(--hint)">›</span></div>
+      </div>
+      <div class="sb-item" onclick="closeSidebar();lockApp()">
+        <div class="sb-item-icon" style="background:var(--red-l)">🔒</div>
+        <div class="sb-item-info">
+          <div class="sb-item-label">Lock App</div>
+          <div class="sb-item-sub">Return to PIN screen</div>
+        </div>
+        <div class="sb-item-right"><span style="font-size:12px;color:var(--hint)">›</span></div>
+      </div>
+    </div>
+
+    <div class="sb-footer">
+      <div class="sb-version">POSH v3.0 · Point of Sale Hub</div>
+    </div>
+  </div>
+
+  <!-- HOME / DASHBOARD -->
+  <div class="screen active" id="screen-home">
+    <div class="top-header">
+      <div class="th-row">
+        <div class="brand"><div class="brand-logo"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="32" height="32" rx="9" fill="#00A67E"/><rect x="7" y="7" width="8" height="10" rx="2.5" fill="white" opacity="0.95"/><rect x="7" y="19" width="8" height="6" rx="2" fill="white" opacity="0.6"/><rect x="17" y="7" width="8" height="6" rx="2" fill="white" opacity="0.6"/><rect x="17" y="15" width="8" height="10" rx="2.5" fill="#FFD700" opacity="0.95"/></svg></div><span class="brand-name">PO<span>S</span>H</span></div>
+        <div class="header-actions">
+          <div class="date-pill" id="header-date"></div>
+          <div class="hamburger" onclick="openSidebar()"><div class="ham-line"></div><div class="ham-line"></div><div class="ham-line"></div></div>
+        </div>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding-bottom:72px">
+      <div class="dash-header"><h2 id="greeting">Good morning 👋</h2><p id="greeting-sub">Here's your shop overview</p></div>
+      <div class="stats-grid">
+        <div class="stat-card sc-green"><div class="stat-label"><span class="stat-label-ico">💰</span>Total Sales</div><div class="stat-value" id="d-sales">KSh 0</div><div class="stat-sub" id="d-sales-change">No sales yet</div><div id="d-sales-vs"></div><canvas id="spark-sales" class="sparkline" width="80" height="24"></canvas></div>
+        <div class="stat-card sc-amber"><div class="stat-label"><span class="stat-label-ico">📈</span>Net Profit</div><div class="stat-value" id="d-profit">KSh 0</div><div class="stat-sub" id="d-margin">—</div><div id="d-profit-vs"></div><canvas id="spark-profit" class="sparkline" width="80" height="24"></canvas></div>
+        <div class="stat-card sc-blue"><div class="stat-label"><span class="stat-label-ico">🧾</span>Transactions</div><div class="stat-value" id="d-txns">0</div><div class="stat-sub" id="d-avg">Avg: KSh 0</div><div id="d-txns-vs"></div><canvas id="spark-txns" class="sparkline" width="80" height="24"></canvas></div>
+        <div class="stat-card sc-red"><div class="stat-label"><span class="stat-label-ico">📦</span>Out of Stock</div><div class="stat-value" id="d-low">0</div><div class="stat-sub" id="d-low-sub">items</div><canvas id="spark-stock" class="sparkline" width="80" height="24"></canvas></div>
+      </div>
+      <div class="section-gap"></div>
+      <div class="progress-wrap">
+        <div class="progress-card">
+          <div class="prog-row"><span class="prog-title">Daily Goal</span><span class="prog-pct" id="goal-pct">0%</span></div>
+          <div class="prog-bar-bg"><div class="prog-bar-fill" id="goal-bar" style="width:0%;background:var(--primary)"></div></div>
+          <div class="prog-sub" id="goal-sub">—</div>
+        </div>
+      </div>
+      <div class="section-gap"></div>
+      <div class="qa-section">
+        <div class="qa-title">Quick Actions</div>
+        <div class="qa-grid">
+          <div class="qa-btn" onclick="switchTab('sales')"><div class="qa-icon" style="background:#E0F7F1">🛒</div><span class="qa-label">New Sale</span></div>
+          <div class="qa-btn" onclick="repeatLastSale()"><div class="qa-icon" style="background:#EFF6FF">🔁</div><span class="qa-label">Repeat Last</span></div>
+          <div class="qa-btn" onclick="openExpenseModal()"><div class="qa-icon" style="background:#FEE2E2">💸</div><span class="qa-label">Expense</span></div>
+          <div class="qa-btn" onclick="switchTab('debts')"><div class="qa-icon" style="background:var(--amber-l)">📒</div><span class="qa-label">Credit</span></div>
+        </div>
+      </div>
+      <div class="section-gap"></div>
+      <div class="insights-wrap">
+        <div class="section-title-row"><span class="section-title">Smart Insights</span></div>
+        <div id="insights-list"></div>
+      </div>
+      <div class="section-gap"></div>
+      <div class="recent-wrap">
+        <div class="section-title-row"><span class="section-title">Recent Transactions</span><button class="see-all" onclick="switchTab('history')">See all →</button></div>
+        <div id="recent-list"></div>
+      </div>
+      <div style="height:10px"></div>
+    </div>
+  </div>
+
+  <!-- SALES -->
+  <div class="screen" id="screen-sales">
+    <div class="top-header" style="padding:11px 16px 10px">
+      <div class="th-row">
+        <div class="brand"><div class="brand-logo"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="32" height="32" rx="9" fill="#00A67E"/><rect x="7" y="7" width="8" height="10" rx="2.5" fill="white" opacity="0.95"/><rect x="7" y="19" width="8" height="6" rx="2" fill="white" opacity="0.6"/><rect x="17" y="7" width="8" height="6" rx="2" fill="white" opacity="0.6"/><rect x="17" y="15" width="8" height="10" rx="2.5" fill="#FFD700" opacity="0.95"/></svg></div><span class="brand-name">PO<span>S</span>H</span></div>
+        <div class="header-actions"><div class="date-pill" id="sales-time"></div><div class="hamburger" onclick="openSidebar()"><div class="ham-line"></div><div class="ham-line"></div><div class="ham-line"></div></div></div>
+      </div>
+    </div>
+    <div style="background:var(--surface);padding:9px 14px;border-bottom:1px solid var(--border)">
+      <div class="search-wrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="search-input" id="sales-q" placeholder="Search products..." oninput="renderSales()"/></div>
+    </div>
+    <div class="cat-scroll" id="cat-scroll"></div>
+    <div style="flex:1;overflow-y:auto;padding-bottom:88px">
+      <div id="fav-area"></div>
+      <div class="products-grid" id="products-grid"></div>
+    </div>
+    <button class="cart-fab" id="cart-fab" onclick="openCart()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="cart-badge" id="cart-badge">0</span></button>
+  </div>
+
+  <!-- INVENTORY -->
+  <div class="screen" id="screen-stock">
+    <div class="screen-sticky-header" style="padding:13px 14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:16px;font-weight:700;color:var(--text)">Inventory</span>
+        <button class="btn btn-primary" style="padding:8px 13px;font-size:12px" onclick="openProductForm(null)">+ Add Item</button>
+      </div>
+      <div class="search-wrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="search-input" id="inv-q" placeholder="Search inventory..." oninput="renderInv()"/></div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding-bottom:72px">
+      <div id="inv-alerts" style="padding:8px 14px 0"></div>
+      <div id="inv-list" style="padding:10px 14px;display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+  </div>
+
+  <!-- REPORTS -->
+  <div class="screen" id="screen-reports">
+    <div class="screen-sticky-header" style="padding:13px 14px 11px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px">
+        <span style="font-size:16px;font-weight:700;color:var(--text)">Reports</span>
+        <button class="btn btn-secondary" style="padding:7px 12px;font-size:11px" onclick="exportPDF()">📄 PDF Report</button>
+      </div>
+      <div class="rpt-tabs">
+        <button class="rpt-tab active" id="rtab-today" onclick="setRptPeriod('today')">Today</button>
+        <button class="rpt-tab" id="rtab-week" onclick="setRptPeriod('week')">Week</button>
+        <button class="rpt-tab" id="rtab-month" onclick="setRptPeriod('month')">Month</button>
+        <button class="rpt-tab" id="rtab-all" onclick="setRptPeriod('all')">All</button>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding-bottom:72px">
+      <div style="padding:12px 14px;display:flex;flex-direction:column;gap:12px" id="reports-body"></div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="screen" id="screen-history">
+    <div class="screen-sticky-header" style="padding:13px 14px 11px">
+      <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:10px">Transaction History</div>
+      <div style="display:flex;gap:6px;margin-bottom:10px">
+        <button class="rpt-tab active" id="htab-today" onclick="setHistFilter('today')" style="flex:1">Today</button>
+        <button class="rpt-tab" id="htab-week" onclick="setHistFilter('week')" style="flex:1">Week</button>
+        <button class="rpt-tab" id="htab-month" onclick="setHistFilter('month')" style="flex:1">Month</button>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center">
+        <div style="flex:1;position:relative"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--hint)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="search-input" id="hist-q" placeholder="Search transactions..." oninput="renderHistory()" style="width:100%"/></div>
+        <input type="date" id="hist-date-picker" class="field" onchange="setHistDate(this.value)" style="width:130px;padding:10px 10px;font-size:12px;cursor:pointer" title="Pick a specific date"/>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding-bottom:72px">
+      <div id="hist-summary" style="padding:10px 14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
+      <div id="hist-list" style="padding:0 14px;display:flex;flex-direction:column;gap:7px"></div>
+    </div>
+  </div>
+
+  <!-- DEBT / CREDIT -->
+  <div class="screen" id="screen-debts">
+    <div class="screen-sticky-header" style="padding:13px 14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:16px;font-weight:700;color:var(--text)">Credit Book 📒</span>
+        <button class="btn btn-primary" style="padding:8px 13px;font-size:12px" onclick="openDebtModal(null)">+ Add Debt</button>
+      </div>
+      <div class="search-wrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="search-input" id="debt-q" placeholder="Search customers..." oninput="renderDebts()"/></div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding-bottom:72px">
+      <div id="debt-summary-wrap" style="padding:10px 14px 0"></div>
+      <div id="debt-list" style="padding:8px 14px;display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="screen" id="screen-settings">
+    <div class="top-header" style="padding:13px 14px"><div style="font-size:16px;font-weight:700;color:var(--text)">Settings</div></div>
+    <div style="flex:1;overflow-y:auto;padding-bottom:72px;padding-top:12px">
+      <div class="settings-section">
+        <div class="settings-title-row"><span class="settings-group-title">Appearance</span></div>
+        <div class="settings-group">
+          <div class="settings-row" onclick="toggleDark()">
+            <div class="sr-icon" style="background:#1E293B">🌙</div>
+            <div class="sr-info"><div class="sr-label">Dark Mode</div><div class="sr-sub" id="dark-mode-sub">Currently: Light</div></div>
+            <div class="dm-toggle"><div class="toggle-track" id="dm-track"><div class="toggle-thumb"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-title-row"><span class="settings-group-title">Business</span></div>
+        <div class="settings-group">
+          <div class="settings-row" onclick="openGoalModal()">
+            <div class="sr-icon" style="background:#E0F7F1">🎯</div>
+            <div class="sr-info"><div class="sr-label">Daily Sales Goal</div><div class="sr-sub" id="goal-setting-val">KSh 2,000</div></div>
+            <span class="sr-arrow">›</span>
+          </div>
+          <div class="settings-row" onclick="openShopNameModal()">
+            <div class="sr-icon" style="background:#EFF6FF">🏪</div>
+            <div class="sr-info"><div class="sr-label">Shop Name</div><div class="sr-sub" id="shopname-setting-val">POSH</div></div>
+            <span class="sr-arrow">›</span>
+          </div>
+          <div class="settings-row" onclick="openIdleModal()">
+            <div class="sr-icon" style="background:#FFF7ED">⏰</div>
+            <div class="sr-info"><div class="sr-label">Idle Alert Timer</div><div class="sr-sub" id="idle-setting-sub">Alert after 30 mins no sales</div></div>
+            <span class="sr-arrow">›</span>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-title-row"><span class="settings-group-title">Security</span></div>
+        <div class="settings-group">
+          <div class="settings-row" onclick="startPinChange()">
+            <div class="sr-icon" style="background:#FEE2E2">🔐</div>
+            <div class="sr-info"><div class="sr-label">Change PIN</div><div class="sr-sub">Update your 4-digit PIN</div></div>
+            <span class="sr-arrow">›</span>
+          </div>
+          <div class="settings-row" onclick="lockApp()">
+            <div class="sr-icon" style="background:#FEF3C7">🔒</div>
+            <div class="sr-info"><div class="sr-label">Lock App</div><div class="sr-sub">Return to PIN screen</div></div>
+            <span class="sr-arrow">›</span>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-title-row"><span class="settings-group-title">Data</span></div>
+        <div class="settings-group">
+          <div class="settings-row" onclick="backupData()">
+            <div class="sr-icon" style="background:#E0F7F1">💾</div>
+            <div class="sr-info"><div class="sr-label">Backup Data</div><div class="sr-sub">Download JSON backup</div></div>
+            <span class="sr-arrow">›</span>
+          </div>
+          <div class="settings-row" onclick="document.getElementById('restore-input').click()">
+            <div class="sr-icon" style="background:#EDE9FE">📂</div>
+            <div class="sr-info"><div class="sr-label">Restore Data</div><div class="sr-sub">Import backup file</div></div>
+            <span class="sr-arrow">›</span>
+          </div>
+          <input type="file" id="restore-input" accept=".json" style="display:none" onchange="restoreData(event)"/>
+          <div class="settings-row" onclick="exportPDF()">
+            <div class="sr-icon" style="background:#FEF3C7">📄</div>
+            <div class="sr-info"><div class="sr-label">Export PDF Report</div><div class="sr-sub">Beautiful formatted report</div></div>
+            <span class="sr-arrow">›</span>
+          </div>
+          <div class="settings-row" onclick="showConfirm('🗑 Clear all sales & expenses?','This cannot be undone.',function(){sales=[];expenses=[];saveData();renderDashboard();toast('🗑 Sales data cleared');},true)">
+            <div class="sr-icon" style="background:#FEE2E2">🗑</div>
+            <div class="sr-info"><div class="sr-label">Clear Sales Data</div><div class="sr-sub">Erase all transactions</div></div>
+            <span class="sr-arrow" style="color:var(--red)">›</span>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;padding:20px;color:var(--hint);font-size:11px;font-weight:600">POSH v3.0 — Point of Sale Hub</div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-item active" id="nav-home" onclick="switchTab('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-item" id="nav-sales" onclick="switchTab('sales')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 5h14m-9-2a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2z"/></svg>
+      <span>Sales</span>
+    </button>
+    <button class="nav-item" id="nav-stock" onclick="switchTab('stock')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      <span>Stock</span>
+    </button>
+    <button class="nav-item" id="nav-reports" onclick="switchTab('reports')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>Reports</span>
+    </button>
+    <button class="nav-item" id="nav-history" onclick="switchTab('history')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span>History</span>
+    </button>
+  </div>
+</div>
+
+<!-- OVERLAYS -->
+<div class="overlay" id="cart-ov" onclick="closeCart()"></div>
+<div class="overlay" id="receipt-ov" onclick="closeReceipt()" style="z-index:190"></div>
+<div class="overlay" id="pform-ov" onclick="closeProductForm()" style="z-index:190"></div>
+<div class="overlay" id="exp-ov" onclick="closeExpenseModal()" style="z-index:190"></div>
+<div class="overlay" id="debt-ov" onclick="closeDebtModal()" style="z-index:190"></div>
+<div class="overlay" id="gen-ov" onclick="closeGenModal()" style="z-index:190"></div>
+<div class="overlay" id="restock-ov" onclick="closeRestockModal()" style="z-index:190"></div>
+
+<!-- CART SHEET -->
+<div class="cart-sheet" id="cart-sheet">
+  <div class="cs-handle"></div>
+  <div class="cs-header"><span class="cs-title">Cart</span><button class="cs-clear" onclick="clearCart()">Clear all</button></div>
+  <div class="cs-items" id="cs-items"></div>
+  <div class="cs-footer">
+    <div class="cs-totals" id="cs-totals"></div>
+    <button class="checkout-btn-main btn btn-primary btn-full btn-lg" onclick="openCheckout()"><span>Checkout</span><span id="checkout-amount">KSh 0</span></button>
+  </div>
+</div>
+
+<!-- RECEIPT / CHECKOUT MODAL -->
+<div class="modal-sheet" id="receipt-modal" style="z-index:200">
+  <div class="modal-handle"></div>
+  <div class="modal-header"><span class="modal-title">Confirm Sale</span><button class="modal-close" onclick="closeReceipt()">×</button></div>
+  <div class="modal-body">
+    <div class="receipt-brand">
+      <div class="receipt-name" id="receipt-shop-name">POSH</div>
+      <div class="receipt-meta" id="receipt-dt"></div>
+    </div>
+    <div class="receipt-items" id="receipt-items"></div>
+
+    <!-- CHANGE CALCULATOR -->
+    <div class="change-calc">
+      <div class="change-calc-title">💵 Change Calculator</div>
+      <div class="change-row">
+        <span style="font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap">Customer pays</span>
+        <input type="number" id="cash-tendered" placeholder="0" oninput="calcChange()" style="text-align:right;color:var(--text);background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px;font-weight:700;outline:none;width:100%"/>
+      </div>
+      <div class="quick-amounts" id="quick-amounts"></div>
+      <div class="change-result" id="change-result" style="margin-top:8px">
+        <span class="change-label">Change Due</span>
+        <span class="change-value" id="change-due">—</span>
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-top:12px"><label class="field-label">Payment Method</label>
+      <select class="field" id="pay-method"><option>Cash</option><option>M-Pesa</option><option>Card</option><option>Credit</option><option>Other</option></select>
+    </div>
+    <div class="form-group" id="credit-customer-wrap" style="display:none">
+      <label class="field-label">Customer Name (Credit)</label>
+      <input class="field" id="credit-customer" type="text" placeholder="e.g. Mary Wanjiku"/>
+    </div>
+    <div class="form-group"><label class="field-label">Note (optional)</label><input class="field" id="cust-note" type="text" placeholder="e.g. Regular customer"/></div>
+    <div class="receipt-footer-txt">Asante sana! · Thank you 🙏</div>
+    <div style="display:flex;gap:9px;margin-top:14px">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeReceipt()">Back</button>
+      <button class="btn btn-primary" style="flex:2" onclick="confirmSale()">Confirm ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCT FORM -->
+<div class="modal-sheet" id="pform-modal" style="z-index:200">
+  <div class="modal-handle"></div>
+  <div class="modal-header"><span class="modal-title" id="pform-title">Add Product</span><button class="modal-close" onclick="closeProductForm()">×</button></div>
+  <div class="modal-body">
+    <div class="form-group"><label class="field-label">Icon</label><div class="emoji-picker" id="emoji-picker"></div></div>
+    <div class="form-group"><label class="field-label">Product Name *</label><input class="field" id="pf-name" type="text" placeholder="e.g. Omena 250g"/></div>
+    <div class="form-row">
+      <div class="form-group"><label class="field-label">Selling Price *</label><input class="field" id="pf-price" type="number" placeholder="0"/></div>
+      <div class="form-group"><label class="field-label">Cost Price</label><input class="field" id="pf-cost" type="number" placeholder="0"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="field-label">Stock Qty *</label><input class="field" id="pf-stock" type="number" placeholder="0"/></div>
+      <div class="form-group"><label class="field-label">Unit</label><input class="field" id="pf-unit" type="text" placeholder="packet"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="field-label">Category</label><input class="field" id="pf-cat" type="text" placeholder="Fish"/></div>
+      <div class="form-group"><label class="field-label">Low Stock Alert ≤</label><input class="field" id="pf-low" type="number" placeholder="5"/></div>
+    </div>
+    <div class="form-group"><label class="field-label">Supplier</label><input class="field" id="pf-supplier" type="text" placeholder="e.g. Gikomba Market"/></div>
+    <div style="display:flex;gap:9px">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeProductForm()">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPENSE MODAL -->
+<div class="modal-sheet" id="exp-modal" style="z-index:200">
+  <div class="modal-handle"></div>
+  <div class="modal-header"><span class="modal-title">Add Expense</span><button class="modal-close" onclick="closeExpenseModal()">×</button></div>
+  <div class="modal-body">
+    <div class="form-group"><label class="field-label">Description *</label><input class="field" id="ef-desc" type="text" placeholder="e.g. Transport to market"/></div>
+    <div class="form-row">
+      <div class="form-group"><label class="field-label">Amount (KSh) *</label><input class="field" id="ef-amount" type="number" placeholder="0"/></div>
+      <div class="form-group"><label class="field-label">Category</label>
+        <select class="field" id="ef-cat"><option>Transport</option><option>Rent</option><option>Stock</option><option>Utilities</option><option>Other</option></select>
+      </div>
+    </div>
+    <div style="display:flex;gap:9px">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeExpenseModal()">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveExpense()">Add Expense</button>
+    </div>
+  </div>
+</div>
+
+<!-- DEBT MODAL -->
+<div class="modal-sheet" id="debt-modal" style="z-index:200">
+  <div class="modal-handle"></div>
+  <div class="modal-header"><span class="modal-title" id="debt-modal-title">Add Credit Sale</span><button class="modal-close" onclick="closeDebtModal()">×</button></div>
+  <div class="modal-body">
+    <div class="form-group"><label class="field-label">Customer Name *</label><input class="field" id="df-name" type="text" placeholder="e.g. Mary Wanjiku"/></div>
+    <div class="form-group"><label class="field-label">Phone (optional)</label><input class="field" id="df-phone" type="tel" placeholder="e.g. 0712 345 678"/></div>
+    <div class="form-row">
+      <div class="form-group"><label class="field-label">Amount Owed (KSh) *</label><input class="field" id="df-amount" type="number" placeholder="0"/></div>
+      <div class="form-group"><label class="field-label">Amount Paid</label><input class="field" id="df-paid" type="number" placeholder="0"/></div>
+    </div>
+    <div class="form-group"><label class="field-label">Items / Description</label><input class="field" id="df-items" type="text" placeholder="e.g. Omena ×2, Rice ×1"/></div>
+    <div class="form-group"><label class="field-label">Due Date (optional)</label><input class="field" id="df-due" type="date"/></div>
+    <div style="display:flex;gap:9px">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeDebtModal()">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveDebt()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- GENERIC MODAL -->
+<div class="modal-sheet" id="gen-modal" style="z-index:200">
+  <div class="modal-handle"></div>
+  <div class="modal-header"><span class="modal-title" id="gen-title">Setting</span><button class="modal-close" onclick="closeGenModal()">×</button></div>
+  <div class="modal-body" id="gen-body"></div>
+</div>
+
+<!-- RESTOCK MODAL -->
+<div class="modal-sheet" id="restock-modal" style="z-index:200">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <span class="modal-title" id="restock-title">Add Stock</span>
+    <button class="modal-close" onclick="closeRestockModal()">×</button>
+  </div>
+  <div class="modal-body">
+    <div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:12px;color:var(--muted);font-weight:600">Current Stock</div>
+        <div style="font-size:22px;font-weight:800;color:var(--text)" id="restock-current">0</div>
+      </div>
+      <div style="font-size:32px" id="restock-emoji">🐟</div>
+      <div style="text-align:right">
+        <div style="font-size:12px;color:var(--muted);font-weight:600">After Adding</div>
+        <div style="font-size:22px;font-weight:800;color:var(--primary)" id="restock-after">0</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="field-label">Quantity to Add *</label>
+      <input class="field" id="restock-qty" type="number" placeholder="e.g. 10" min="1" oninput="previewRestock()" style="font-size:20px;font-weight:700;text-align:center"/>
+    </div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px" id="restock-quick">
+      <div class="qa-amount" onclick="setRestockQty(5)">+5</div>
+      <div class="qa-amount" onclick="setRestockQty(10)">+10</div>
+      <div class="qa-amount" onclick="setRestockQty(20)">+20</div>
+      <div class="qa-amount" onclick="setRestockQty(50)">+50</div>
+      <div class="qa-amount" onclick="setRestockQty(100)">+100</div>
+    </div>
+    <div class="form-group">
+      <label class="field-label">Cost of Restock (KSh, optional)</label>
+      <input class="field" id="restock-cost" type="number" placeholder="Total spent on this stock"/>
+    </div>
+    <div style="display:flex;gap:9px">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeRestockModal()">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveRestock()">📦 Add Stock</button>
+    </div>
+  </div>
+</div>
+
+<!-- PWA INSTALL BANNER -->
+<div class="pwa-banner" id="pwa-banner">
+  <div class="pwa-banner-icon">
+    <svg viewBox="0 0 32 32" fill="none" width="28" height="28"><rect width="32" height="32" rx="9" fill="#00A67E"/><rect x="7" y="7" width="8" height="10" rx="2.5" fill="white" opacity="0.95"/><rect x="7" y="19" width="8" height="6" rx="2" fill="white" opacity="0.6"/><rect x="17" y="7" width="8" height="6" rx="2" fill="white" opacity="0.6"/><rect x="17" y="15" width="8" height="10" rx="2.5" fill="#FFD700" opacity="0.95"/></svg>
+  </div>
+  <div class="pwa-banner-text">
+    <div class="pwa-banner-title">Install POSH App</div>
+    <div class="pwa-banner-sub">Add to home screen for quick access</div>
+  </div>
+  <div class="pwa-banner-btns">
+    <button class="pwa-install-btn" onclick="installPWA()">Install</button>
+    <button class="pwa-later-btn" onclick="dismissPWA()">Later</button>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="confirm-modal" id="confirm-modal">
+  <div class="confirm-bg" onclick="closeConfirm()"></div>
+  <div class="confirm-card">
+    <span class="confirm-icon" id="confirm-icon">⚠️</span>
+    <div class="confirm-title" id="confirm-title">Are you sure?</div>
+    <div class="confirm-sub" id="confirm-sub">This action cannot be undone.</div>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="confirm-ok" id="confirm-ok" onclick="doConfirm()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── SAFETY STUBS (prevent errors before full init) ──
+function pinPress(n){ if(typeof _pinPress==='function') _pinPress(n); }
+function pinDel(){ if(typeof _pinDel==='function') _pinDel(); }
+
+// ═════════════════════════════════════
+//  DATA
+// ═════════════════════════════════════
+const EMOJIS=['🐟','🐠','🍚','🌽','🥜','🫙','🧴','🍞','🥚','🧅','🧄','🍅','🥬','🍋','🍊','🫚','🧂','🍵','☕','🥤','🧃','🫒','🌿','🫛','🥩','🐓','🥦','🍯','🧇','🫙'];
+const EXP_ICONS={Transport:'🚗',Rent:'🏠',Stock:'📦',Utilities:'💡',Other:'💸'};
+
+// Fresh Fish: price = size × 50, Fried Fish: price = size × 50 + 50
+const FRESH_SIZES=[1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10];
+const FRESH_PRICES=[50,75,100,125,150,175,200,225,250,275,300,325,350,375,400,425,450,475,500];
+const FRIED_PRICES=[100,125,150,175,200,225,250,275,300,325,350,375,400,425,450,475,500,525,550];
+
+let products=[]; // Blank — user adds their own products
+let sales=[];
+let expenses=[];
+let debts=[];
+let cart=[];
+let selEmoji='🐟';
+let editId=null;
+let debtEditId=null;
+let activeCat='All';
+let rptFilter='today';
+let histFilter='today';
+let dailyGoal=2000;
+let shopName='POSH';
+let userPin='1234';
+let nextId=500;
+let nextDebtId=1;
+let darkMode=false;
+let idleMinutes=30;
+let idleTimer=null;
+let lastSaleTime=Date.now();
+
+// PIN state
+let pinEntry='';
+let pinMode='verify';
+let newPinStep=0;
+let newPinTemp='';
+
+// ═════════════════════════════════════
+//  CONFIRM MODAL
+// ═════════════════════════════════════
+var _confirmCallback=null;
+function showConfirm(title,sub,cb,isDanger){
+  _confirmCallback=cb;
+  // pick icon from title
+  var icon='⚠️';
+  if(title.includes('🗑')||title.includes('Delete')||title.includes('Clear'))icon='🗑️';
+  if(title.includes('Credit')||title.includes('debt'))icon='📒';
+  document.getElementById('confirm-icon').textContent=icon;
+  document.getElementById('confirm-title').textContent=title;
+  document.getElementById('confirm-sub').textContent=sub||'This cannot be undone.';
+  var okBtn=document.getElementById('confirm-ok');
+  okBtn.className=isDanger?'confirm-ok danger':'confirm-ok';
+  okBtn.textContent=isDanger?'Yes, delete':'Confirm';
+  document.getElementById('confirm-modal').classList.add('open');
+}
+function closeConfirm(){
+  document.getElementById('confirm-modal').classList.remove('open');
+  _confirmCallback=null;
+}
+function doConfirm(){
+  closeConfirm();
+  if(_confirmCallback)_confirmCallback();
+}
+
+// ═════════════════════════════════════
+//  LOCAL STORAGE PERSISTENCE
+// ═════════════════════════════════════
+function saveData(){
+  try{
+    localStorage.setItem('posh_data',JSON.stringify({
+      products,sales,expenses,debts,
+      dailyGoal,shopName,userPin,darkMode,idleMinutes,
+      nextId,nextDebtId,lastSync:new Date().toISOString()
+    }));
+  }catch(e){console.warn('Save failed',e);}
+  if(typeof cloudSync==='function') cloudSync();
+}
+function loadData(){
+  try{
+    const raw=localStorage.getItem('posh_data');
+    if(!raw)return;
+    const d=JSON.parse(raw);
+    if(d.products&&d.products.length)products=d.products;
+    if(d.sales)sales=d.sales;
+    if(d.expenses)expenses=d.expenses;
+    if(d.debts)debts=d.debts;
+    if(d.dailyGoal)dailyGoal=d.dailyGoal;
+    if(d.shopName)shopName=d.shopName;
+    if(d.userPin)userPin=d.userPin;
+    if(typeof d.darkMode==='boolean'){darkMode=d.darkMode;}
+    if(d.idleMinutes)idleMinutes=d.idleMinutes;
+    if(d.nextId)nextId=d.nextId;
+    if(d.nextDebtId)nextDebtId=d.nextDebtId;
+    // Apply dark mode immediately on load
+    if(darkMode){
+      document.documentElement.setAttribute('data-theme','dark');
+      const btn=document.getElementById('dark-toggle-btn');
+      if(btn)btn.textContent='☀️';
+      const track=document.getElementById('dm-track');
+      if(track)track.classList.add('on');
+    }
+  }catch(e){console.warn('Load failed',e);}
+}
+
+// ═════════════════════════════════════
+//  UTILS
+// ═════════════════════════════════════
+const fmt=n=>'KSh '+Number(n).toLocaleString();
+const fmtS=n=>n>=1000?(n/1000).toFixed(1)+'K':String(n);
+const nowDate=()=>new Date().toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'2-digit'});
+function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function getDateKey(ts){var d=new Date(ts);return`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;}
+function todayKey(){return getDateKey(Date.now());}
+function yesterdayKey(){var d=new Date();d.setDate(d.getDate()-1);return getDateKey(d.getTime());}
+function filterSales(period){
+  const now=new Date();
+  if(period==='today')return sales.filter(s=>getDateKey(s.ts)===todayKey());
+  if(period==='week'){var w=new Date(now);w.setDate(w.getDate()-7);return sales.filter(s=>new Date(s.ts)>=w);}
+  if(period==='month')return sales.filter(s=>{var d=new Date(s.ts);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  return sales;
+}
+function calcProfit(s){return s.items.reduce((sum,i)=>{var p=products.find(x=>x.id===i.id);return sum+(i.price-(p?p.cost:0))*i.qty;},0);}
+function cartTotal(){return cart.reduce((s,x)=>s+x.price*x.qty,0);}
+function cartCount(){return cart.reduce((s,x)=>s+x.qty,0);}
+function vsBadge(today,yest,prefix=''){
+  if(!yest)return '';
+  const diff=today-yest;const pct=yest>0?Math.round(Math.abs(diff)/yest*100):0;
+  if(diff>0)return`<div class="vs-badge vs-up">▲ ${pct}% vs yesterday</div>`;
+  if(diff<0)return`<div class="vs-badge vs-down">▼ ${pct}% vs yesterday</div>`;
+  return`<div class="vs-badge vs-flat">= Same as yesterday</div>`;
+}
+
+// ═════════════════════════════════════
+//  SIDEBAR
+// ═════════════════════════════════════
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sb-overlay').classList.add('open');
+  updateSidebar();
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sb-overlay').classList.remove('open');
+}
+function updateSidebar(){
+  // shop name
+  document.getElementById('sb-shop-name').textContent='🏪 '+shopName;
+  // dark mode toggle
+  const track=document.getElementById('sb-dm-track');
+  if(track)track.classList.toggle('on',darkMode);
+  document.getElementById('sb-dark-sub').textContent='Currently '+(darkMode?'Dark':'Light');
+  // idle
+  document.getElementById('sb-idle-sub').textContent=idleMinutes===0?'Disabled':'After '+idleMinutes+' mins no sales';
+  // alerts
+  const low=products.filter(p=>p.stock>0&&p.stock<=p.lowAt).length;
+  const out=products.filter(p=>p.stock===0).length;
+  const unpaid=debts.filter(d=>d.status!=='paid').length;
+  const total=low+out+unpaid;
+  const badgeWrap=document.getElementById('sb-notif-badge-wrap');
+  const alertSub=document.getElementById('sb-alerts-sub');
+  if(total>0){
+    badgeWrap.innerHTML='<span class=\"sb-notif-badge\">'+total+'</span>';
+    const parts=[];
+    if(out>0)parts.push(out+' out of stock');
+    if(low>0)parts.push(low+' low stock');
+    if(unpaid>0)parts.push(unpaid+' credit pending');
+    alertSub.textContent=parts.join(' · ');
+  }else{
+    badgeWrap.innerHTML='';
+    alertSub.textContent='No active alerts';
+  }
+}
+
+// Override toggleDark to also update sidebar
+const _origToggleDark=typeof toggleDark!=='undefined'?toggleDark:null;
+
+// ═════════════════════════════════════
+//  DARK MODE
+// ═════════════════════════════════════
+function toggleDark(){
+  darkMode=!darkMode;saveData();
+  document.documentElement.setAttribute('data-theme',darkMode?'dark':'light');
+  const btn=document.getElementById('dark-toggle-btn');if(btn)btn.textContent=darkMode?'☀️':'🌙';
+  const dmSub=document.getElementById('dark-mode-sub');if(dmSub)dmSub.textContent='Currently: '+(darkMode?'Dark':'Light');
+  const track=document.getElementById('dm-track');if(track)track.classList.toggle('on',darkMode);
+  const sbTrack=document.getElementById('sb-dm-track');if(sbTrack)sbTrack.classList.toggle('on',darkMode);
+  const sbSub=document.getElementById('sb-dark-sub');if(sbSub)sbSub.textContent='Currently '+(darkMode?'Dark':'Light');
+}
+
+// ═════════════════════════════════════
+//  IDLE ALERT
+// ═════════════════════════════════════
+function resetIdleTimer(){
+  lastSaleTime=Date.now();
+  document.getElementById('idle-banner').classList.remove('show');
+  clearInterval(idleTimer);
+  idleTimer=setInterval(()=>{
+    const mins=Math.floor((Date.now()-lastSaleTime)/60000);
+    if(mins>=idleMinutes){
+      document.getElementById('idle-msg').textContent=`No sales in ${mins} minute${mins>1?'s':''}. Are you still selling? 👀`;
+      document.getElementById('idle-banner').classList.add('show');
+    }
+  },30000); // check every 30 seconds
+}
+function dismissIdle(){document.getElementById('idle-banner').classList.remove('show');}
+function openIdleModal(){
+  openGenModal('Idle Alert Timer',`
+    <div class="form-group"><label class="field-label">Alert after how many minutes with no sale?</label>
+      <select class="field" id="idle-input">
+        <option value="15" ${idleMinutes===15?'selected':''}>15 minutes</option>
+        <option value="30" ${idleMinutes===30?'selected':''}>30 minutes</option>
+        <option value="60" ${idleMinutes===60?'selected':''}>60 minutes</option>
+        <option value="0">Disabled</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:9px">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeGenModal()">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="idleMinutes=parseInt(document.getElementById('idle-input').value)||30;document.getElementById('idle-setting-sub').textContent=idleMinutes===0?'Disabled':'Alert after '+idleMinutes+' mins no sales';saveData();resetIdleTimer();closeGenModal();toast('✅ Idle timer updated');">Save</button>
+    </div>`);
+}
+
+// ═════════════════════════════════════
+//  PIN
+// ═════════════════════════════════════
+function updatePinDots(){for(let i=0;i<4;i++){var d=document.getElementById('pd'+i);d.classList.toggle('filled',i<pinEntry.length);d.classList.remove('shake');}}
+function _pinPress(n){if(pinEntry.length>=4)return;pinEntry+=n;updatePinDots();if(pinEntry.length===4)setTimeout(checkPin,120);}
+function _pinDel(){pinEntry=pinEntry.slice(0,-1);updatePinDots();}
+function checkPin(){
+  if(pinMode==='verify'){
+    if(pinEntry===userPin)unlockApp();
+    else{shakeDots();setTimeout(()=>{pinEntry='';updatePinDots();},400);}
+  }else if(newPinStep===0){
+    // Step 0: enter new PIN
+    newPinTemp=pinEntry;newPinStep=1;pinEntry='';updatePinDots();
+    document.getElementById('pin-hint').textContent='Confirm your new PIN';
+  }else if(newPinStep===1){
+    // Step 1: confirm new PIN
+    if(pinEntry===newPinTemp){
+      userPin=pinEntry;
+      saveData();
+      unlockApp();
+      toast('✅ PIN updated!');
+    }else{
+      shakeDots();
+      setTimeout(()=>{pinEntry='';updatePinDots();document.getElementById('pin-hint').textContent='PINs did not match. Enter new PIN again';newPinStep=0;},400);
+    }
+  }
+}
+function shakeDots(){for(let i=0;i<4;i++){var d=document.getElementById('pd'+i);d.classList.add('shake');setTimeout(()=>d.classList.remove('shake'),300);}}
+function unlockApp(){document.getElementById('pin-screen').style.display='none';document.getElementById('app').style.display='flex';document.getElementById('app').style.flexDirection='column';document.getElementById('app').style.minHeight='100vh';pinMode='verify';newPinStep=0;pinEntry='';updatePinDots();resetIdleTimer();const pcb=document.getElementById('pin-change-btn');if(pcb)pcb.style.display='block';}
+function lockApp(){document.getElementById('app').style.display='none';document.getElementById('pin-screen').style.display='flex';pinEntry='';updatePinDots();document.getElementById('pin-hint').textContent='Enter your 4-digit PIN';}
+function startPinChange(){pinMode='set';newPinStep=0;pinEntry='';updatePinDots();lockApp();document.getElementById('pin-hint').textContent='Enter your NEW 4-digit PIN';}
+
+// ═════════════════════════════════════
+//  TABS
+// ═════════════════════════════════════
+const allTabs=['home','sales','stock','reports','history','debts','settings'];
+function switchTab(tab){
+  allTabs.forEach(t=>{
+    const s=document.getElementById('screen-'+t);if(s)s.classList.toggle('active',t===tab);
+    const n=document.getElementById('nav-'+t);if(n)n.classList.toggle('active',t===tab);
+  });
+  if(tab==='home')renderDashboard();
+  if(tab==='sales'){renderCats();renderSales();updateCartFab();}
+  if(tab==='stock')renderInv();
+  if(tab==='reports')renderReports();
+  if(tab==='history')renderHistory();
+  if(tab==='debts')renderDebts();
+}
+
+// ═════════════════════════════════════
+//  DASHBOARD
+// ═════════════════════════════════════
+function renderDashboard(){
+  const h=new Date().getHours();
+  var greetTime=h<12?'Good morning':'h<17'?'Good afternoon':'Good evening';
+  var greetEmoji=h<12?'👋':h<17?'☀️':'🌙';
+  greetTime=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  document.getElementById('greeting').textContent=greetTime+', '+shopName+'! '+greetEmoji;
+  document.getElementById('greeting-sub').textContent=h<12?'Ready to make sales today!':h<17?'Keep pushing, you got this!':'Great work today. Here is your summary.';
+  document.getElementById('header-date').textContent=nowDate();
+  document.getElementById('sales-time').textContent=nowDate();
+  const td=filterSales('today');
+  const yd=sales.filter(s=>getDateKey(s.ts)===yesterdayKey());
+  const rev=td.reduce((s,x)=>s+x.total,0);
+  const yRev=yd.reduce((s,x)=>s+x.total,0);
+  const grossP=td.reduce((s,x)=>s+calcProfit(x),0);
+  const yGrossP=yd.reduce((s,x)=>s+calcProfit(x),0);
+  const todayExp=expenses.filter(e=>getDateKey(e.ts)===todayKey()).reduce((s,e)=>s+e.amount,0);
+  const yExp=expenses.filter(e=>getDateKey(e.ts)===yesterdayKey()).reduce((s,e)=>s+e.amount,0);
+  const netP=grossP-todayExp;
+  const yNetP=yGrossP-yExp;
+  const txns=td.length;
+  const yTxns=yd.length;
+  const avg=txns>0?Math.round(rev/txns):0;
+  const low=products.filter(p=>p.stock>0&&p.stock<=p.lowAt).length;
+  const out=products.filter(p=>p.stock===0).length;
+
+  document.getElementById('d-sales').textContent=fmt(rev);
+  document.getElementById('d-sales-change').textContent=txns>0?txns+' transaction'+(txns>1?'s':''):'No sales yet';
+  document.getElementById('d-sales-vs').innerHTML=vsBadge(rev,yRev);
+  document.getElementById('d-profit').textContent=fmt(netP);
+  document.getElementById('d-margin').textContent=rev>0?Math.round(netP/rev*100)+'% margin':'—';
+  document.getElementById('d-profit-vs').innerHTML=vsBadge(netP,yNetP);
+  document.getElementById('d-txns').textContent=txns;
+  document.getElementById('d-avg').textContent='Avg: '+fmt(avg);
+  document.getElementById('d-txns-vs').innerHTML=vsBadge(txns,yTxns);
+  document.getElementById('d-low').textContent=out;
+  document.getElementById('d-low-sub').textContent=out===0?(low>0?low+' low stock':'✓ All good'):out+' need restock';
+
+  const pct=Math.min(100,Math.round(rev/dailyGoal*100));
+  document.getElementById('goal-pct').textContent=pct+'%';
+  document.getElementById('goal-bar').style.width=pct+'%';
+  document.getElementById('goal-sub').textContent=fmt(rev)+' of '+fmt(dailyGoal)+' · '+fmt(Math.max(0,dailyGoal-rev))+' to go';
+  // confetti when goal hit
+  if(rev>=dailyGoal&&rev>0)fireConfetti();
+  // sparklines
+  renderSparklines();
+  document.getElementById('goal-setting-val').textContent=fmt(dailyGoal);
+  document.getElementById('shopname-setting-val').textContent=shopName;
+  const _nd=document.getElementById('notif-dot');if(_nd)_nd.style.display=low+out>0?'block':'none';
+
+  // unpaid debts notification
+  const unpaid=debts.filter(d=>d.status!=='paid');
+  renderInsights(td,low,out,rev,yRev,unpaid);
+  renderRecentList(td);
+}
+function renderInsights(td,low,out,rev,yRev,unpaid){
+  const insights=[];
+  if(out>0)insights.push({t:'red',i:'❌',msg:`${out} product${out>1?'s':''} out of stock!`});
+  if(low>0)insights.push({t:'amber',i:'⚠️',msg:`${low} item${low>1?'s':''} running low on stock.`});
+  // restock reminders
+  const needRestock=products.filter(p=>p.stock<=p.lowAt&&p.supplier);
+  needRestock.forEach(p=>insights.push({t:'orange',i:'🔔',msg:`Restock alert: ${p.name} (${p.stock} left) — Supplier: ${p.supplier}`}));
+  // today vs yesterday
+  if(yRev>0){
+    var diff=rev-yRev;var pct=Math.round(Math.abs(diff)/yRev*100);
+    if(diff>0)insights.push({t:'green',i:'📈',msg:'Sales up '+pct+'% vs yesterday! Great job.'});
+    else if(diff<0)insights.push({t:'amber',i:'📉',msg:'Sales down '+pct+'% vs yesterday. Push harder!'});
+  }
+  if(unpaid&&unpaid.length>0){var total=unpaid.reduce((s,d)=>s+d.amount-d.paid,0);insights.push({t:'blue',i:'📒',msg:unpaid.length+' customer'+(unpaid.length>1?'s':'')+' owe '+fmt(total)+' in credit.'});}
+  if(td.length===0)insights.push({t:'blue',i:'💡',msg:'No sales yet today. Start selling!'});
+  else{
+    const topMap={};td.forEach(s=>s.items.forEach(i=>{topMap[i.name]=(topMap[i.name]||0)+i.qty;}));
+    const top=Object.entries(topMap).sort((a,b)=>b[1]-a[1])[0];
+    if(top)insights.push({t:'green',i:'🔥',msg:`Top seller today: ${top[0]} (${top[1]} sold)`});
+  }
+  document.getElementById('insights-list').innerHTML=insights.length===0?
+    '<div class="alert alert-green"><span class="alert-icon">✅</span><span>Everything looks great!</span></div>':
+    insights.map(x=>`<div class="alert alert-${x.t}"><span class="alert-icon">${x.i}</span><span>${x.msg}</span></div>`).join('');
+}
+function renderRecentList(td){
+  const recent=[...td].reverse().slice(0,3);
+  if(!recent.length){document.getElementById('recent-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--muted);font-size:12px">No transactions yet</div>';return;}
+  document.getElementById('recent-list').innerHTML=recent.map(s=>`
+    <div class="txn-item" style="margin-bottom:7px"><div class="txn-row">
+      <div class="txn-icon">🧾</div>
+      <div class="txn-info"><div class="txn-id">#${String(s.id).slice(-4)} · ${s.payment}</div><div class="txn-time">${new Date(s.ts).toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'})}</div><div class="txn-preview">${s.items.map(i=>i.emoji+i.name).join(', ')}</div></div>
+      <div class="txn-right"><div class="txn-total">${fmt(s.total)}</div><div class="txn-profit">+${fmt(calcProfit(s))}</div></div>
+    </div></div>`).join('');
+}
+
+// ═════════════════════════════════════
+//  SALES
+// ═════════════════════════════════════
+function getCats(){return['All',...new Set(products.map(p=>p.cat))];}
+function renderCats(){
+  document.getElementById('cat-scroll').innerHTML=getCats().map(c=>`<div class="cat-chip${c===activeCat?' active':''}" onclick="activeCat='${c}';renderCats();renderSales()">${c}</div>`).join('');
+}
+function renderSales(){
+  const q=(document.getElementById('sales-q').value||'').toLowerCase();
+  let list=products;
+  if(activeCat!=='All')list=list.filter(p=>p.cat===activeCat);
+  if(q)list=list.filter(p=>p.name.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q));
+  const favs=products.filter(p=>p.fav);
+  const favArea=document.getElementById('fav-area');
+  if(favs.length&&!q){
+    favArea.innerHTML=`<div class="fav-strip"><div class="fav-label">⭐ Favourites</div><div class="fav-row">${favs.map(p=>`<div class="fav-pill" onclick="addToCart(${p.id})"><span>${p.emoji}</span><span>${p.name}</span><em>${fmt(p.price)}</em></div>`).join('')}</div></div>`;
+  }else favArea.innerHTML='';
+  if(!list.length){document.getElementById('products-grid').innerHTML='<div style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No products found</div></div></div>';return;}
+  document.getElementById('products-grid').innerHTML=list.map(p=>{
+    const inCart=cart.find(x=>x.id===p.id);
+    const sb=p.stock===0?'badge-red':p.stock<=p.lowAt?'badge-amber':'badge-green';
+    const stxt=p.stock===0?'Out':p.stock<=p.lowAt?p.stock+' left':p.stock;
+    return`<div class="prod-card${p.stock===0?' disabled':''}${inCart?' in-cart':''}" onclick="${p.stock>0?`addToCart(${p.id})`:''}">
+      <span class="prod-fav${p.fav?' on':''}" onclick="event.stopPropagation();toggleFav(${p.id})">${p.fav?'★':'☆'}</span>
+      <div class="prod-stock-b"><span class="badge ${sb}">${stxt}</span></div>
+      <div class="prod-emoji-wrap">${p.emoji}</div>
+      <div class="prod-name">${p.name}</div>
+      <div class="prod-unit">${p.unit}</div>
+      <div class="prod-bottom"><span class="prod-price">${fmt(p.price)}</span>${p.stock>0?`<div class="prod-add">${inCart?inCart.qty:'+'}</div>`:''}</div>
+    </div>`;
+  }).join('');
+}
+function toggleFav(id){var p=products.find(x=>x.id===id);if(p){p.fav=!p.fav;saveData();renderSales();toast(p.fav?'⭐ Favourited':'Removed');}}
+
+// ═════════════════════════════════════
+//  CART
+// ═════════════════════════════════════
+function addToCart(id){
+  const p=products.find(x=>x.id===id);if(!p||p.stock<=0)return;
+  const ex=cart.find(x=>x.id===id);
+  if(ex){if(ex.qty>=p.stock){toast('⚠️ Max stock!');return;}ex.qty++;}
+  else cart.push({id,name:p.name,price:p.price,emoji:p.emoji,qty:1});
+  updateCartFab();renderSales();toast(`${p.emoji} Added!`);
+}
+function removeFromCart(id){cart=cart.filter(x=>x.id!==id);updateCartFab();renderSales();if(!cart.length)closeCart();}
+function changeQty(id,d){
+  const item=cart.find(x=>x.id===id);const prod=products.find(x=>x.id===id);if(!item)return;
+  item.qty+=d;
+  if(item.qty<=0){removeFromCart(id);return;}
+  if(item.qty>prod.stock){item.qty=prod.stock;toast('Max stock!');}
+  renderCartSheet();updateCartFab();renderSales();
+}
+function clearCart(){cart=[];updateCartFab();renderSales();closeCart();}
+function updateCartFab(){
+  document.getElementById('cart-fab').style.display=cart.length?'flex':'none';
+  document.getElementById('cart-badge').textContent=cartCount();
+}
+function openCart(){renderCartSheet();document.getElementById('cart-sheet').classList.add('open');document.getElementById('cart-ov').classList.add('show');}
+function closeCart(){document.getElementById('cart-sheet').classList.remove('open');document.getElementById('cart-ov').classList.remove('show');}
+function renderCartSheet(){
+  document.getElementById('cs-items').innerHTML=cart.map(function(item){
+    return '<div class="ci-row-wrap" id="ci-wrap-'+item.id+'">'
+      +'<div class="ci-row-delete-bg">🗑</div>'
+      +'<div class="ci-row" id="ci-row-'+item.id+'">'
+      +'<span class="ci-emoji">'+item.emoji+'</span>'
+      +'<div class="ci-info"><div class="ci-name">'+item.name+'</div><div class="ci-uprice">'+fmt(item.price)+' each</div></div>'
+      +'<div class="ci-qty">'
+      +'<button class="cq-btn" onclick="changeQty('+item.id+',-1)">−</button>'
+      +'<span class="cq-n">'+item.qty+'</span>'
+      +'<button class="cq-btn" onclick="changeQty('+item.id+',1)">+</button>'
+      +'</div>'
+      +'<span class="ci-total">'+fmt(item.price*item.qty)+'</span>'
+      +'<button class="ci-del" onclick="removeFromCart('+item.id+')">×</button>'
+      +'</div></div>';
+  }).join('');
+  // Attach swipe handlers after render
+  cart.forEach(function(item){
+    attachSwipe(item.id);
+  });
+  const total=cartTotal();
+  document.getElementById('cs-totals').innerHTML=`
+    <div class="cs-total-row"><span>${cartCount()} items</span><span>${fmt(total)}</span></div>
+    <div class="cs-total-row grand"><span>Total</span><span>${fmt(total)}</span></div>`;
+  document.getElementById('checkout-amount').textContent=fmt(total);
+}
+
+// ═════════════════════════════════════
+//  CHANGE CALCULATOR
+// ═════════════════════════════════════
+function setupQuickAmounts(){
+  const total=cartTotal();
+  const rounds=[50,100,200,500,1000,2000].filter(a=>a>=total);
+  const shown=rounds.slice(0,4);
+  document.getElementById('quick-amounts').innerHTML=shown.map(a=>`<div class="qa-amount" onclick="document.getElementById('cash-tendered').value=${a};calcChange()">KSh ${a}</div>`).join('');
+}
+function calcChange(){
+  const total=cartTotal();
+  const tendered=parseFloat(document.getElementById('cash-tendered').value)||0;
+  const changeEl=document.getElementById('change-due');
+  if(tendered<=0){changeEl.textContent='—';changeEl.className='change-value';return;}
+  const change=tendered-total;
+  if(change>=0){changeEl.textContent=fmt(change);changeEl.className='change-value ok';}
+  else{changeEl.textContent='Short '+fmt(Math.abs(change));changeEl.className='change-value short';}
+}
+function openCheckout(){
+  if(!cart.length)return;
+  document.getElementById('receipt-dt').textContent=new Date().toLocaleString('en-KE');
+  document.getElementById('receipt-shop-name').innerHTML=shopName;
+  const total=cartTotal();
+  document.getElementById('receipt-items').innerHTML=`
+    ${cart.map(i=>`<div class="ri-line"><span>${i.emoji} ${i.name} ×${i.qty}</span><span style="font-weight:700">${fmt(i.price*i.qty)}</span></div>`).join('')}
+    <hr class="ri-divider"/>
+    <div class="ri-grand"><span>TOTAL</span><span>${fmt(total)}</span></div>`;
+  document.getElementById('cash-tendered').value='';
+  document.getElementById('change-due').textContent='—';
+  document.getElementById('change-due').className='change-value';
+  setupQuickAmounts();
+  // toggle credit field
+  document.getElementById('pay-method').onchange=function(){
+    document.getElementById('credit-customer-wrap').style.display=this.value==='Credit'?'block':'none';
+  };
+  closeCart();
+  document.getElementById('receipt-modal').classList.add('open');
+  document.getElementById('receipt-ov').classList.add('show');
+}
+function closeReceipt(){document.getElementById('receipt-modal').classList.remove('open');document.getElementById('receipt-ov').classList.remove('show');}
+function confirmSale(){
+  const total=cartTotal();
+  const payment=document.getElementById('pay-method').value;
+  const note=document.getElementById('cust-note').value;
+  const items=cart.map(i=>({...i}));
+  items.forEach(ci=>{var p=products.find(x=>x.id===ci.id);if(p)p.stock=Math.max(0,p.stock-ci.qty);});
+  sales.push({id:Date.now(),ts:Date.now(),total,payment,note,items});
+  // auto-add to credit book if paid by Credit
+  var custName='';
+  if(payment==='Credit'){
+    custName=document.getElementById('credit-customer').value.trim()||'Unknown Customer';
+    debts.push({id:nextDebtId++,name:custName,phone:'',amount:total,paid:0,items:items.map(i=>i.name+'×'+i.qty).join(', '),status:'pending',ts:Date.now(),due:''});
+  }
+  lastSaleTime=Date.now();
+  cart=[];saveData();closeReceipt();updateCartFab();renderSales();playChaChingSound();toast('✅ Sale recorded!');
+  const low=products.filter(p=>p.stock<=p.lowAt).length;
+  const _nd2=document.getElementById('notif-dot');if(_nd2&&low>0)_nd2.style.display='block';
+}
+function repeatLastSale(){if(!sales.length){toast('No previous sale!');return;}const last=sales[sales.length-1];last.items.forEach(i=>{var p=products.find(x=>x.id===i.id);if(p&&p.stock>0)addToCart(i.id);});toast('🔁 Last sale added!');switchTab('sales');}
+
+// ═════════════════════════════════════
+//  INVENTORY
+// ═════════════════════════════════════
+function renderInv(){
+  const q=(document.getElementById('inv-q').value||'').toLowerCase();
+  const low=products.filter(p=>p.stock>0&&p.stock<=p.lowAt);
+  const out=products.filter(p=>p.stock===0);
+  let alerts='';
+  if(out.length)alerts+=`<div class="alert alert-red"><span class="alert-icon">❌</span><span>${out.length} out of stock: ${out.map(p=>p.name).join(', ')}</span></div>`;
+  if(low.length)alerts+=`<div class="alert alert-amber"><span class="alert-icon">⚠️</span><span>${low.length} low: ${low.map(p=>p.name).join(', ')}</span></div>`;
+  document.getElementById('inv-alerts').innerHTML=alerts;
+  let list=products;
+  if(q)list=list.filter(p=>p.name.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q)||p.supplier.toLowerCase().includes(q));
+  const margin=p=>p.cost>0?Math.round((p.price-p.cost)/p.price*100):null;
+  document.getElementById('inv-list').innerHTML=list.length===0?
+    '<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">No products</div><div class="empty-sub">Tap + Add Item</div></div>':
+    list.map(p=>{
+      const m=margin(p);const sc=p.stock===0?'out':p.stock<=p.lowAt?'low':'';const sb=p.stock===0?'badge-red':p.stock<=p.lowAt?'badge-amber':'badge-green';
+      const restockChip=p.stock<=p.lowAt&&p.supplier?`<div class="restock-chip" onclick="toast('📲 Contact: ${p.supplier}')">🔔 Restock from ${p.supplier}</div>`:'';
+      return`<div class="inv-item ${sc}">
+        <span class="ii-emoji">${p.emoji}</span>
+        <div class="ii-info">
+          <div class="ii-name">${p.name}</div>
+          <div class="ii-meta">${p.cat} · ${p.unit} · <span class="badge ${sb}">Stock: ${p.stock}</span></div>
+          ${p.supplier?`<div class="ii-supplier">🏪 ${p.supplier}</div>`:''}
+          ${restockChip}
+        </div>
+        <div class="ii-right">
+          <div class="ii-price">${fmt(p.price)}</div>
+          ${m!==null?`<div class="ii-margin">${m}% margin</div>`:''}
+          <div class="ii-actions">
+            <div class="ii-btn" title="Add Stock" onclick="openRestockModal(${p.id})" style="background:var(--primary-l);border-color:var(--primary);color:var(--primary-d);font-weight:800">+📦</div>
+            <div class="ii-btn" onclick="openProductForm(${p.id})">✏️</div>
+            <div class="ii-btn" id="del-btn-${p.id}" onclick="deleteProduct(${p.id})">🗑</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+}
+function deleteProduct(id){
+  const p=products.find(x=>x.id===id);if(!p)return;
+  const btn=document.getElementById('del-btn-'+id);
+  if(!btn)return;
+  if(btn.dataset.confirm==='1'){
+    products=products.filter(function(x){return x.id!==id;});
+    cart=cart.filter(function(ci){return ci.id!==id;});
+    saveData();renderInv();
+    toast('🗑 '+p.name+' deleted');
+  } else {
+    btn.dataset.confirm='1';
+    btn.textContent='Sure?';
+    btn.style.background='var(--red-l)';
+    btn.style.borderColor='var(--red)';
+    btn.style.color='var(--red)';
+    btn.style.width='auto';
+    btn.style.padding='0 8px';
+    setTimeout(()=>{
+      if(btn&&btn.dataset.confirm==='1'){
+        btn.dataset.confirm='';
+        btn.textContent='🗑';
+        btn.style.background='';btn.style.borderColor='';btn.style.color='';btn.style.width='';btn.style.padding='';
+      }
+    },3000);
+  }
+}
+
+// ── RESTOCK / ADD STOCK ──
+let restockId=null;
+function openRestockModal(id){
+  restockId=id;
+  const p=products.find(x=>x.id===id);if(!p)return;
+  document.getElementById('restock-title').textContent='Add Stock — '+p.name;
+  document.getElementById('restock-emoji').textContent=p.emoji;
+  document.getElementById('restock-current').textContent=p.stock;
+  document.getElementById('restock-after').textContent=p.stock;
+  document.getElementById('restock-qty').value='';
+  document.getElementById('restock-cost').value='';
+  document.getElementById('restock-modal').classList.add('open');
+  document.getElementById('restock-ov').classList.add('show');
+  setTimeout(()=>document.getElementById('restock-qty').focus(),300);
+}
+function closeRestockModal(){
+  document.getElementById('restock-modal').classList.remove('open');
+  document.getElementById('restock-ov').classList.remove('show');
+  restockId=null;
+}
+function previewRestock(){
+  const p=products.find(x=>x.id===restockId);if(!p)return;
+  const qty=parseInt(document.getElementById('restock-qty').value)||0;
+  document.getElementById('restock-after').textContent=p.stock+qty;
+}
+function setRestockQty(n){
+  document.getElementById('restock-qty').value=n;
+  previewRestock();
+}
+function saveRestock(){
+  const p=products.find(x=>x.id===restockId);if(!p)return;
+  const qty=parseInt(document.getElementById('restock-qty').value)||0;
+  if(qty<=0){toast('⚠️ Enter a valid quantity');return;}
+  const cost=parseFloat(document.getElementById('restock-cost').value)||0;
+  p.stock+=qty;
+  // auto-log restock cost as expense if provided
+  if(cost>0)expenses.push({id:Date.now(),ts:Date.now(),desc:`Restock: ${p.name} ×${qty}`,amount:cost,cat:'Stock'});
+  closeRestockModal();saveData();renderInv();
+  toast(`✅ +${qty} added to ${p.name} — Stock now: ${p.stock}`);
+}
+function openProductForm(id){
+  editId=id;const p=id?products.find(x=>x.id===id):null;selEmoji=p?p.emoji:'🐟';
+  document.getElementById('pform-title').textContent=id?'Edit Product':'Add Product';
+  ['name','price','cost','stock','unit','cat','low','supplier'].forEach(f=>{
+    document.getElementById('pf-'+f).value=p?({name:p.name,price:p.price,cost:p.cost,stock:p.stock,unit:p.unit,cat:p.cat,low:p.lowAt,supplier:p.supplier}[f]||''):'';
+  });
+  renderEmojiPicker();
+  document.getElementById('pform-modal').classList.add('open');document.getElementById('pform-ov').classList.add('show');
+}
+function closeProductForm(){document.getElementById('pform-modal').classList.remove('open');document.getElementById('pform-ov').classList.remove('show');}
+function renderEmojiPicker(){document.getElementById('emoji-picker').innerHTML=EMOJIS.map(e=>`<div class="ep-item${e===selEmoji?' sel':''}" onclick="selEmoji='${e}';renderEmojiPicker()">${e}</div>`).join('');}
+function saveProduct(){
+  const name=document.getElementById('pf-name').value.trim();
+  const price=parseFloat(document.getElementById('pf-price').value)||0;
+  const cost=parseFloat(document.getElementById('pf-cost').value)||0;
+  const stock=parseInt(document.getElementById('pf-stock').value)||0;
+  const unit=document.getElementById('pf-unit').value.trim()||'unit';
+  const cat=document.getElementById('pf-cat').value.trim()||'General';
+  const lowAt=parseInt(document.getElementById('pf-low').value)||5;
+  const supplier=document.getElementById('pf-supplier').value.trim();
+  if(!name){toast('⚠️ Name required');return;}
+  if(editId)Object.assign(products.find(x=>x.id===editId),{name,price,cost,stock,unit,cat,lowAt,supplier,emoji:selEmoji});
+  else products.push({id:nextId++,name,price,cost,stock,unit,cat,lowAt,supplier,emoji:selEmoji,fav:false});
+  closeProductForm();saveData();renderInv();toast(editId?'✅ Updated':'✅ Added');
+}
+
+// ═════════════════════════════════════
+//  EXPENSES
+// ═════════════════════════════════════
+function openExpenseModal(){document.getElementById('ef-desc').value='';document.getElementById('ef-amount').value='';document.getElementById('exp-modal').classList.add('open');document.getElementById('exp-ov').classList.add('show');}
+function closeExpenseModal(){document.getElementById('exp-modal').classList.remove('open');document.getElementById('exp-ov').classList.remove('show');}
+function saveExpense(){
+  const desc=document.getElementById('ef-desc').value.trim();
+  const amount=parseFloat(document.getElementById('ef-amount').value)||0;
+  const cat=document.getElementById('ef-cat').value;
+  if(!desc){toast('⚠️ Description required');return;}
+  if(amount<=0){toast('⚠️ Enter valid amount');return;}
+  expenses.push({id:Date.now(),ts:Date.now(),desc,amount,cat});
+  closeExpenseModal();saveData();renderDashboard();toast('💸 Expense added');
+}
+
+// ═════════════════════════════════════
+//  DEBT / CREDIT
+// ═════════════════════════════════════
+function openDebtModal(id){
+  debtEditId=id;const d=id?debts.find(x=>x.id===id):null;
+  document.getElementById('debt-modal-title').textContent=id?'Edit Credit':'Add Credit Sale';
+  document.getElementById('df-name').value=d?d.name:'';
+  document.getElementById('df-phone').value=d?d.phone:'';
+  document.getElementById('df-amount').value=d?d.amount:'';
+  document.getElementById('df-paid').value=d?d.paid:'';
+  document.getElementById('df-items').value=d?d.items:'';
+  document.getElementById('df-due').value=d?d.due:'';
+  document.getElementById('debt-modal').classList.add('open');document.getElementById('debt-ov').classList.add('show');
+}
+function closeDebtModal(){document.getElementById('debt-modal').classList.remove('open');document.getElementById('debt-ov').classList.remove('show');}
+function saveDebt(){
+  const name=document.getElementById('df-name').value.trim();
+  const phone=document.getElementById('df-phone').value.trim();
+  const amount=parseFloat(document.getElementById('df-amount').value)||0;
+  const paid=parseFloat(document.getElementById('df-paid').value)||0;
+  const items=document.getElementById('df-items').value.trim();
+  const due=document.getElementById('df-due').value;
+  if(!name){toast('⚠️ Customer name required');return;}
+  if(amount<=0){toast('⚠️ Enter valid amount');return;}
+  const status=paid>=amount?'paid':paid>0?'partial':'pending';
+  if(debtEditId){Object.assign(debts.find(x=>x.id===debtEditId),{name,phone,amount,paid,items,due,status});}
+  else debts.push({id:nextDebtId++,name,phone,amount,paid,items,status,ts:Date.now(),due});
+  closeDebtModal();saveData();renderDebts();toast(debtEditId?'✅ Updated':'✅ Credit recorded');
+}
+function markDebtPaid(id){
+  const d=debts.find(x=>x.id===id);if(d){d.paid=d.amount;d.status='paid';saveData();renderDebts();toast('✅ Marked as paid!');}
+}
+function deleteDebt(id){showConfirm('Delete this credit record?','This cannot be undone.',function(){debts=debts.filter(function(d){return d.id!==id;});saveData();renderDebts();toast('🗑 Record deleted');});}
+function renderDebts(){
+  const q=(document.getElementById('debt-q').value||'').toLowerCase();
+  const pending=debts.filter(d=>d.status==='pending');
+  const partial=debts.filter(d=>d.status==='partial');
+  const paid=debts.filter(d=>d.status==='paid');
+  const totalOwed=debts.filter(d=>d.status!=='paid').reduce((s,d)=>s+(d.amount-d.paid),0);
+  const totalPaid=debts.reduce((s,d)=>s+d.paid,0);
+  document.getElementById('debt-summary-wrap').innerHTML=`
+    <div class="debt-summary">
+      <div class="ds-card"><div class="ds-val" style="color:var(--red)">${fmt(totalOwed)}</div><div class="ds-lbl">Owed</div></div>
+      <div class="ds-card"><div class="ds-val" style="color:var(--amber)">${pending.length+partial.length}</div><div class="ds-lbl">Pending</div></div>
+      <div class="ds-card"><div class="ds-val" style="color:var(--primary)">${fmt(totalPaid)}</div><div class="ds-lbl">Collected</div></div>
+    </div>`;
+  let list=debts;
+  if(q)list=list.filter(d=>d.name.toLowerCase().includes(q)||d.items.toLowerCase().includes(q));
+  list=[...list].sort((a,b)=>b.ts-a.ts);
+  if(!list.length){document.getElementById('debt-list').innerHTML='<div class="empty-state"><div class="empty-icon">📒</div><div class="empty-title">No credit records</div><div class="empty-sub">Add customers who bought on credit</div></div>';return;}
+  const statusLabel={pending:'Unpaid',partial:'Partial',paid:'Paid'};
+  const statusBadge={pending:'badge-red',partial:'badge-amber',paid:'badge-green'};
+  const overdue=d=>d.due&&new Date(d.due)<new Date()&&d.status!=='paid';
+  document.getElementById('debt-list').innerHTML=list.map(d=>`
+    <div class="debt-item ${d.status}">
+      <div class="di-avatar">${d.name.charAt(0).toUpperCase()}</div>
+      <div class="di-info">
+        <div class="di-name">${d.name} ${overdue(d)?'<span class="badge badge-red" style="font-size:9px">OVERDUE</span>':''}</div>
+        <div class="di-meta">
+          <span class="badge ${statusBadge[d.status]}">${statusLabel[d.status]}</span>
+          ${d.phone?` · ${d.phone}`:''}
+          ${d.due?` · Due: ${new Date(d.due).toLocaleDateString('en-KE',{day:'numeric',month:'short'})}`:''}
+        </div>
+        ${d.items?`<div class="di-items">${d.items}</div>`:''}
+        <div class="di-actions">
+          ${d.status!=='paid'?`<button class="btn btn-primary" style="padding:5px 10px;font-size:10px" onclick="markDebtPaid(${d.id})">Mark Paid</button>`:''}
+          <button class="btn btn-secondary" style="padding:5px 10px;font-size:10px" onclick="openDebtModal(${d.id})">Edit</button>
+          <button class="btn btn-danger" style="padding:5px 10px;font-size:10px" onclick="deleteDebt(${d.id})">Delete</button>
+        </div>
+      </div>
+      <div class="di-right">
+        <div class="di-amount ${d.status==='paid'?'paid':''}">${fmt(d.amount-d.paid)}</div>
+        ${d.paid>0&&d.status!=='paid'?`<div style="font-size:10px;color:var(--muted)">Paid: ${fmt(d.paid)}</div>`:''}
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">Total: ${fmt(d.amount)}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ═════════════════════════════════════
+//  REPORTS
+// ═════════════════════════════════════
+function setRptPeriod(p){
+  rptFilter=p;
+  ['today','week','month','all'].forEach(t=>document.getElementById('rtab-'+t).classList.toggle('active',t===p));
+  renderReports();
+}
+function renderReports(){
+  const list=filterSales(rptFilter);
+  const rev=list.reduce((s,x)=>s+x.total,0);
+  const grossP=list.reduce((s,x)=>s+calcProfit(x),0);
+  const now=new Date();
+  const expList=expenses.filter(e=>{
+    if(rptFilter==='today')return getDateKey(e.ts)===todayKey();
+    if(rptFilter==='week'){var w=new Date(now);w.setDate(w.getDate()-7);return new Date(e.ts)>=w;}
+    if(rptFilter==='month'){var d=new Date(e.ts);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}
+    return true;
+  });
+  const totalExp=expList.reduce((s,e)=>s+e.amount,0);
+  const netP=grossP-totalExp;
+  const txns=list.length;const avg=txns>0?Math.round(rev/txns):0;
+  // Yesterday comparison (only for today filter)
+  const yd=sales.filter(s=>getDateKey(s.ts)===yesterdayKey());
+  const yRev=yd.reduce((s,x)=>s+x.total,0);
+  const yProfit=yd.reduce((s,x)=>s+calcProfit(x),0);
+  const yTxns=yd.length;
+  const yExp=expenses.filter(e=>getDateKey(e.ts)===yesterdayKey()).reduce((s,e)=>s+e.amount,0);
+  const yNet=yProfit-yExp;
+  // Top products
+  const prodMap={};
+  list.forEach(s=>s.items.forEach(i=>{
+    if(!prodMap[i.id])prodMap[i.id]={name:i.name,emoji:i.emoji,qty:0,rev:0};
+    prodMap[i.id].qty+=i.qty;prodMap[i.id].rev+=i.price*i.qty;
+  }));
+  const topProds=Object.values(prodMap).sort((a,b)=>b.rev-a.rev).slice(0,5);
+  const maxRev=topProds[0]?topProds[0].rev:1;
+  // 7-day trend
+  const days=[];
+  for(let i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);const key=getDateKey(d.getTime());const dayRev=sales.filter(s=>getDateKey(s.ts)===key).reduce((s,x)=>s+x.total,0);days.push({label:d.toLocaleDateString('en-KE',{weekday:'narrow'}),rev:dayRev});}
+  const maxDay=Math.max(...days.map(d=>d.rev))||1;
+  // Payment breakdown
+  const payMap={};list.forEach(s=>{payMap[s.payment]=(payMap[s.payment]||0)+s.total;});
+
+  document.getElementById('reports-body').innerHTML=`
+    <div class="net-profit-banner">
+      <div class="npb-label">Net Profit</div>
+      <div class="npb-value">${fmt(netP)}</div>
+      <div class="npb-sub">Revenue ${fmt(rev)} · Expenses ${fmt(totalExp)}</div>
+    </div>
+
+    ${rptFilter==='today'&&(yRev>0||yTxns>0)?`
+    <div class="vs-card">
+      <div class="vs-title">📊 Today vs Yesterday</div>
+      <div class="vs-row"><span class="vs-metric">Revenue</span><div class="vs-vals"><span class="vs-today">${fmt(rev)}</span><span class="vs-yest">↑ ${fmt(yRev)}</span><span class="vs-change ${rev>=yRev?'up':'down'}">${yRev>0?Math.round(Math.abs(rev-yRev)/yRev*100)+'%':'—'} ${rev>=yRev?'▲':'▼'}</span></div></div>
+      <div class="vs-row"><span class="vs-metric">Net Profit</span><div class="vs-vals"><span class="vs-today">${fmt(netP)}</span><span class="vs-yest">↑ ${fmt(yNet)}</span><span class="vs-change ${netP>=yNet?'up':'down'}">${yNet>0?Math.round(Math.abs(netP-yNet)/Math.abs(yNet)*100)+'%':'—'} ${netP>=yNet?'▲':'▼'}</span></div></div>
+      <div class="vs-row"><span class="vs-metric">Transactions</span><div class="vs-vals"><span class="vs-today">${txns}</span><span class="vs-yest">↑ ${yTxns}</span><span class="vs-change ${txns>=yTxns?'up':'down'}">${yTxns>0?Math.round(Math.abs(txns-yTxns)/yTxns*100)+'%':'—'} ${txns>=yTxns?'▲':'▼'}</span></div></div>
+    </div>`:''}
+
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="kpi-val" style="color:var(--primary)">${fmtS(rev)}</div><div class="kpi-lbl">Revenue</div></div>
+      <div class="kpi-card"><div class="kpi-val" style="color:var(--amber)">${fmtS(grossP)}</div><div class="kpi-lbl">Gross Profit</div></div>
+      <div class="kpi-card"><div class="kpi-val">${txns}</div><div class="kpi-lbl">Sales</div></div>
+      <div class="kpi-card"><div class="kpi-val">${fmt(avg)}</div><div class="kpi-lbl">Avg Sale</div></div>
+      <div class="kpi-card"><div class="kpi-val" style="color:var(--red)">${fmtS(totalExp)}</div><div class="kpi-lbl">Expenses</div></div>
+      <div class="kpi-card"><div class="kpi-val" style="color:var(--primary)">${rev>0?Math.round(netP/rev*100):0}%</div><div class="kpi-lbl">Net Margin</div></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">📈 Sales Trend (7 days)</div>
+      <div class="bar-chart">
+        ${days.map(d=>`<div class="bar-col"><span class="bar-val">${d.rev>0?fmtS(d.rev):''}</span><div class="bar-fill" style="height:${Math.round((d.rev/maxDay)*100)}%"></div><span class="bar-label">${d.label}</span></div>`).join('')}
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">🏆 Top Products</div>
+      ${topProds.length===0?'<div style="text-align:center;color:var(--muted);font-size:12px;padding:16px">No sales yet</div>':
+        `<div class="top-prod-list">${topProds.map((p,i)=>`<div class="tp-item"><span class="tp-rank">#${i+1}</span><span class="tp-emoji">${p.emoji}</span><span class="tp-name">${p.name}</span><div class="tp-bar-wrap"><div class="tp-bar" style="width:${Math.round(p.rev/maxRev*100)}%"></div></div><div><div class="tp-rev">${fmt(p.rev)}</div><div class="tp-qty">${p.qty} sold</div></div></div>`).join('')}</div>`}
+    </div>
+
+    ${Object.keys(payMap).length?`<div class="chart-card"><div class="chart-title">💳 Payment Methods</div>${Object.entries(payMap).map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text)"><span style="font-weight:600">${k}</span><div style="text-align:right"><div style="font-weight:800">${fmt(v)}</div><div style="font-size:10px;color:var(--muted)">${Math.round(v/rev*100)}%</div></div></div>`).join('')}</div>`:''}
+
+    <div class="chart-card">
+      <div class="chart-title" style="display:flex;justify-content:space-between;align-items:center">💸 Expenses <button onclick="openExpenseModal()" style="font-size:11px;font-weight:700;color:var(--primary);background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif">+ Add</button></div>
+      ${expList.length===0?'<div style="text-align:center;color:var(--muted);font-size:12px;padding:14px">No expenses</div>':
+        expList.map(e=>`<div style="display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--border)"><div class="exp-icon-wrap">${EXP_ICONS[e.cat]||'💸'}</div><div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--text)">${e.desc}</div><div style="font-size:10px;color:var(--muted)">${e.cat} · ${new Date(e.ts).toLocaleDateString('en-KE',{day:'numeric',month:'short'})}</div></div><div><div class="exp-amount">${fmt(e.amount)}</div><button onclick="expenses=expenses.filter(x=>x.id!==${e.id});renderReports();toast('Deleted');" style="font-size:10px;color:var(--red);background:none;border:none;cursor:pointer;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;display:block;margin-top:2px">Remove</button></div></div>`).join('')}
+    </div>`;
+}
+
+// ═════════════════════════════════════
+//  HISTORY
+// ═════════════════════════════════════
+function setHistFilter(f){
+  histFilter=f;
+  ['today','week','month'].forEach(t=>{var el=document.getElementById('htab-'+t);if(el)el.classList.toggle('active',t===f);});
+  renderHistory();
+}
+function renderHistory(){
+  var q=(document.getElementById('hist-q').value||'').toLowerCase();
+  var list;
+  if(histDateFilter){
+    list=sales.filter(function(s){
+      var d=new Date(s.ts);
+      var iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+      return iso===histDateFilter;
+    });
+  } else {
+    list=filterSales(histFilter);
+  }
+  if(q)list=list.filter(function(s){return s.items.some(function(i){return i.name.toLowerCase().includes(q);})||String(s.id).includes(q)||(s.note&&s.note.toLowerCase().includes(q));});
+  list=list.slice().reverse();
+  const rev=list.reduce((s,x)=>s+x.total,0);const profit=list.reduce((s,x)=>s+calcProfit(x),0);
+  document.getElementById('hist-summary').innerHTML=`
+    <div class="kpi-card"><div class="kpi-val" style="color:var(--primary);font-size:14px">${fmtS(rev)}</div><div class="kpi-lbl">Revenue</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:var(--amber);font-size:14px">${fmtS(profit)}</div><div class="kpi-lbl">Profit</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="font-size:14px">${list.length}</div><div class="kpi-lbl">Sales</div></div>`;
+  if(!list.length){document.getElementById('hist-list').innerHTML='<div class="empty-state"><div class="empty-icon">🧾</div><div class="empty-title">No transactions</div><div class="empty-sub">Complete a sale to see it here</div></div>';return;}
+  document.getElementById('hist-list').innerHTML=list.map(s=>`
+    <div class="txn-item"><div class="txn-row" onclick="toggleTxn(${s.id})">
+      <div class="txn-icon">🧾</div>
+      <div class="txn-info">
+        <div class="txn-id">#${String(s.id).slice(-4)} · ${s.payment}</div>
+        <div class="txn-time">${new Date(s.ts).toLocaleDateString('en-KE',{day:'numeric',month:'short'})} ${new Date(s.ts).toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'})}</div>
+        <div class="txn-preview">${s.items.map(i=>i.emoji+i.name).join(', ')}</div>
+      </div>
+      <div class="txn-right"><div class="txn-total">${fmt(s.total)}</div><div class="txn-profit">+${fmt(calcProfit(s))}</div></div>
+      <span class="txn-chevron" id="txc-${s.id}">▼</span>
+    </div>
+    <div class="txn-detail" id="txd-${s.id}">
+      ${s.items.map(i=>`<div class="txd-row"><span>${i.emoji} ${i.name} ×${i.qty}</span><span>${fmt(i.price*i.qty)}</span></div>`).join('')}
+      <div class="txd-row b"><span>Total</span><span>${fmt(s.total)}</span></div>
+      <div class="txd-row b"><span>Profit</span><span style="color:var(--primary)">${fmt(calcProfit(s))}</span></div>
+      ${s.note?`<div class="txd-row"><span>Note</span><span>${s.note}</span></div>`:''}
+    </div></div>`).join('');
+}
+function toggleTxn(id){document.getElementById('txd-'+id).classList.toggle('open');document.getElementById('txc-'+id).classList.toggle('open');}
+
+// ═════════════════════════════════════
+//  SETTINGS MODALS
+// ═════════════════════════════════════
+function openGenModal(title,body){document.getElementById('gen-title').textContent=title;document.getElementById('gen-body').innerHTML=body;document.getElementById('gen-modal').classList.add('open');document.getElementById('gen-ov').classList.add('show');}
+function closeGenModal(){document.getElementById('gen-modal').classList.remove('open');document.getElementById('gen-ov').classList.remove('show');}
+function openGoalModal(){openGenModal('Daily Sales Goal',`<div class="form-group"><label class="field-label">Goal Amount (KSh)</label><input class="field" id="goal-input" type="number" value="${dailyGoal}"/></div><div style="display:flex;gap:9px"><button class="btn btn-secondary" style="flex:1" onclick="closeGenModal()">Cancel</button><button class="btn btn-primary" style="flex:2" onclick="dailyGoal=parseInt(document.getElementById('goal-input').value)||2000;saveData();closeGenModal();renderDashboard();toast('✅ Goal updated');">Save</button></div>`);}
+function openShopNameModal(){openGenModal('Shop Name',`<div class="form-group"><label class="field-label">Shop Name</label><input class="field" id="shopname-input" type="text" value="${shopName}" maxlength="20"/></div><div style="display:flex;gap:9px"><button class="btn btn-secondary" style="flex:1" onclick="closeGenModal()">Cancel</button><button class="btn btn-primary" style="flex:2" onclick="shopName=document.getElementById('shopname-input').value.trim()||'POSH';saveData();closeGenModal();renderDashboard();toast('✅ Shop name updated');">Save</button></div>`);}
+
+// ═════════════════════════════════════
+//  BACKUP / EXPORT
+// ═════════════════════════════════════
+function backupData(){
+  const data=JSON.stringify({products,sales,expenses,debts,dailyGoal,shopName,v:3},null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=`posh-backup-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);toast('💾 Backup downloaded!');
+}
+function restoreData(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(data.products)products=data.products;if(data.sales)sales=data.sales;
+      if(data.expenses)expenses=data.expenses;if(data.debts)debts=data.debts;
+      if(data.dailyGoal)dailyGoal=data.dailyGoal;if(data.shopName)shopName=data.shopName;
+      renderDashboard();saveData();toast('✅ Data restored!');
+    }catch{toast('❌ Invalid backup file');}
+  };reader.readAsText(file);
+}
+function exportCSV(){
+  if(!sales.length){toast('No sales to export');return;}
+  const rows=[['ID','Date','Time','Items','Total','Payment','Profit','Note']];
+  sales.forEach(s=>{var d=new Date(s.ts);rows.push(['#'+String(s.id).slice(-4),d.toLocaleDateString('en-KE'),d.toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'}),'"'+s.items.map(i=>i.name+'x'+i.qty).join(', ')+'"',s.total,s.payment,calcProfit(s),s.note||'']);});
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=`posh-sales-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);toast('📤 CSV exported!');
+}
+
+function exportPDF(){
+  const list=filterSales(rptFilter);
+  if(!list.length){toast('No sales to export');return;}
+  toast('📄 Opening report...');
+  const now2=new Date();
+  const periodLabel={today:"Today's Report",week:'Weekly Report',month:'Monthly Report',all:'All-Time Report'}[rptFilter]||'Sales Report';
+  const rev=list.reduce((s,x)=>s+x.total,0);
+  const grossP=list.reduce((s,x)=>s+calcProfit(x),0);
+  const expList=expenses.filter(e=>{
+    if(rptFilter==='today')return getDateKey(e.ts)===todayKey();
+    if(rptFilter==='week'){var w=new Date(now2);w.setDate(w.getDate()-7);return new Date(e.ts)>=w;}
+    if(rptFilter==='month'){var d=new Date(e.ts);return d.getMonth()===now2.getMonth()&&d.getFullYear()===now2.getFullYear();}
+    return true;
+  });
+  const totalExp=expList.reduce((s,e)=>s+e.amount,0);
+  const netP=grossP-totalExp;
+  const txns=list.length;
+  const avg=txns>0?Math.round(rev/txns):0;
+  const prodMap={};
+  list.forEach(s=>s.items.forEach(i=>{
+    if(!prodMap[i.id])prodMap[i.id]={name:i.name,qty:0,rev:0};
+    prodMap[i.id].qty+=i.qty;prodMap[i.id].rev+=i.price*i.qty;
+  }));
+  const topProds=Object.values(prodMap).sort((a,b)=>b.rev-a.rev).slice(0,10);
+  const txnRows=[...list].reverse().map(s=>{
+    const d=new Date(s.ts);
+    const profit=calcProfit(s);
+    return`<tr>
+      <td>#${String(s.id).slice(-4)}</td>
+      <td>${d.toLocaleDateString('en-KE',{day:'numeric',month:'short'})} ${d.toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'})}</td>
+      <td>${s.items.map(i=>i.name+'×'+i.qty).join(', ')}</td>
+      <td>${s.payment}</td>
+      <td style="color:#00A67E;font-weight:700">KSh ${profit.toLocaleString()}</td>
+      <td style="font-weight:700">KSh ${s.total.toLocaleString()}</td>
+    </tr>`;
+  }).join('');
+  const expRows=expList.map(e=>`<tr>
+    <td>${e.desc}</td><td>${e.cat}</td>
+    <td>${new Date(e.ts).toLocaleDateString('en-KE',{day:'numeric',month:'short'})}</td>
+    <td style="color:#EF4444;font-weight:700">KSh ${e.amount.toLocaleString()}</td>
+  </tr>`).join('');
+  const topRows=topProds.map((p,i)=>`<tr>
+    <td>${i+1}</td><td>${p.name}</td><td>${p.qty}</td>
+    <td style="color:#00A67E;font-weight:700">KSh ${p.rev.toLocaleString()}</td>
+    <td>${rev>0?Math.round(p.rev/rev*100):0}%</td>
+  </tr>`).join('');
+
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+  <title>POSH Report</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;color:#0D1B2A;background:#fff;font-size:13px}
+    .header{background:#00A67E;color:white;padding:24px 32px;display:flex;justify-content:space-between;align-items:center}
+    .header-left h1{font-size:28px;font-weight:900;letter-spacing:-1px}
+    .header-left h1 span{color:#FFD700}
+    .header-left p{font-size:11px;opacity:0.8;margin-top:2px}
+    .header-right{text-align:right;font-size:11px;opacity:0.85;line-height:1.7}
+    .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:24px 32px}
+    .kpi{background:#F0F4F8;border-radius:10px;padding:14px;border-left:4px solid #00A67E}
+    .kpi.amber{border-color:#F59E0B}.kpi.blue{border-color:#3B82F6}.kpi.red{border-color:#EF4444}
+    .kpi label{font-size:10px;font-weight:700;color:#5A7184;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:5px}
+    .kpi value{font-size:20px;font-weight:800;color:#0D1B2A}
+    .section{padding:0 32px 24px}
+    .section h2{font-size:13px;font-weight:700;color:white;background:#00A67E;padding:8px 14px;border-radius:6px 6px 0 0;margin-bottom:0;text-transform:uppercase;letter-spacing:0.5px}
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    th{background:#E0F7F1;color:#007F61;font-size:10px;font-weight:700;text-transform:uppercase;padding:8px 10px;text-align:left;letter-spacing:0.3px}
+    td{padding:8px 10px;border-bottom:1px solid #E8EDF2;vertical-align:top}
+    tr:nth-child(even) td{background:#F8FBFD}
+    tr:last-child td{border-bottom:none}
+    .footer{background:#F0F4F8;padding:14px 32px;text-align:center;font-size:10px;color:#9DB4C8;margin-top:20px;border-top:1px solid #E8EDF2}
+    .net-banner{background:#00A67E;color:white;padding:16px 32px;display:flex;justify-content:space-between;align-items:center}
+    .net-banner .nb-label{font-size:11px;font-weight:700;opacity:0.8;text-transform:uppercase;letter-spacing:0.5px}
+    .net-banner .nb-value{font-size:26px;font-weight:900;letter-spacing:-0.5px}
+    .net-banner .nb-sub{font-size:11px;opacity:0.75;margin-top:2px}
+    @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  </style>
+  </head><body>
+  <div class="header">
+    <div class="header-left">
+      <h1>PO<span>S</span>H</h1>
+      <p>Point of Sale Hub · ${periodLabel}</p>
+    </div>
+    <div class="header-right">
+      <div><strong>${shopName}</strong></div>
+      <div>Generated: ${now2.toLocaleString('en-KE')}</div>
+      <div>Period: ${periodLabel}</div>
+    </div>
+  </div>
+  <div class="net-banner">
+    <div>
+      <div class="nb-label">Net Profit (after expenses)</div>
+      <div class="nb-value">KSh ${netP.toLocaleString()}</div>
+      <div class="nb-sub">Revenue KSh ${rev.toLocaleString()} · Expenses KSh ${totalExp.toLocaleString()}</div>
+    </div>
+    <div style="text-align:right">
+      <div class="nb-label">Net Margin</div>
+      <div class="nb-value">${rev>0?Math.round(netP/rev*100):0}%</div>
+    </div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi"><label>Total Revenue</label><value>KSh ${rev.toLocaleString()}</value></div>
+    <div class="kpi amber"><label>Gross Profit</label><value>KSh ${grossP.toLocaleString()}</value></div>
+    <div class="kpi blue"><label>Transactions</label><value>${txns}</value></div>
+    <div class="kpi blue"><label>Average Sale</label><value>KSh ${avg.toLocaleString()}</value></div>
+    <div class="kpi red"><label>Total Expenses</label><value>KSh ${totalExp.toLocaleString()}</value></div>
+    <div class="kpi"><label>Net Profit</label><value style="color:${netP>=0?'#00A67E':'#EF4444'}">KSh ${netP.toLocaleString()}</value></div>
+  </div>
+  ${topProds.length?`<div class="section"><h2>🏆 Top Selling Products</h2>
+  <table><thead><tr><th>#</th><th>Product</th><th>Qty Sold</th><th>Revenue</th><th>Share</th></tr></thead>
+  <tbody>${topRows}</tbody></table></div>`:''}
+  <div class="section"><h2>🧾 Transaction History</h2>
+  <table><thead><tr><th>ID</th><th>Date & Time</th><th>Items</th><th>Payment</th><th>Profit</th><th>Total</th></tr></thead>
+  <tbody>${txnRows}</tbody></table></div>
+  ${expList.length?`<div class="section"><h2>💸 Expenses</h2>
+  <table><thead><tr><th>Description</th><th>Category</th><th>Date</th><th>Amount</th></tr></thead>
+  <tbody>${expRows}</tbody></table></div>`:''}
+  <div class="footer">POSH v3.0 · Point of Sale Hub · Confidential Business Report · Generated ${now2.toLocaleString('en-KE')}</div>
+  <script>window.onload=function(){window.print();}<\/script>
+  </body></html>`;
+
+  var blob=new Blob([html],{type:'text/html'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='POSH-Report-'+new Date().toISOString().slice(0,10)+'.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},5000);
+  toast('📄 Report downloaded! Open the HTML file to view & print.');
+}
+
+
+// ═════════════════════════════════════
+//  🎉 CONFETTI
+// ═════════════════════════════════════
+var _confettiFired=false;
+function fireConfetti(){
+  if(_confettiFired)return;
+  _confettiFired=true;
+  var canvas=document.createElement('canvas');
+  canvas.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:700';
+  document.body.appendChild(canvas);
+  var ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  var pieces=[];
+  var colors=['#00A67E','#FFD700','#3B82F6','#EF4444','#8B5CF6','#F59E0B','#EC4899'];
+  for(var i=0;i<120;i++){
+    pieces.push({
+      x:Math.random()*canvas.width,y:-10-Math.random()*200,
+      w:6+Math.random()*8,h:8+Math.random()*12,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      rot:Math.random()*360,rotV:(Math.random()-0.5)*8,
+      vx:(Math.random()-0.5)*4,vy:2+Math.random()*4,
+      opacity:1
+    });
+  }
+  var frames=0;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(function(p){
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+      ctx.globalAlpha=p.opacity;ctx.fillStyle=p.color;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();
+      p.x+=p.vx;p.y+=p.vy;p.rot+=p.rotV;p.vy+=0.08;
+      if(frames>80)p.opacity-=0.015;
+    });
+    frames++;
+    if(frames<160)requestAnimationFrame(draw);
+    else{canvas.remove();_confettiFired=false;}
+  }
+  draw();
+  toast('🎉 Daily goal reached! Amazing!');
+}
+
+// ═════════════════════════════════════
+//  🔊 CHA-CHING SOUND
+// ═════════════════════════════════════
+function playChaChingSound(){
+  try{
+    var ctx=new(window.AudioContext||window.webkitAudioContext)();
+    function beep(freq,start,dur,vol,type){
+      var o=ctx.createOscillator();var g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.type=type||'sine';o.frequency.value=freq;
+      g.gain.setValueAtTime(vol||0.3,ctx.currentTime+start);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+start+dur);
+      o.start(ctx.currentTime+start);o.stop(ctx.currentTime+start+dur+0.01);
+    }
+    // cha-ching: quick high notes then a ring
+    beep(1200,0,0.06,0.3,'square');
+    beep(1600,0.05,0.06,0.25,'square');
+    beep(2000,0.1,0.04,0.2,'square');
+    beep(880,0.15,0.35,0.15,'sine');
+    beep(1100,0.15,0.3,0.1,'sine');
+  }catch(e){}
+}
+
+// ═════════════════════════════════════
+//  📈 SPARKLINES
+// ═════════════════════════════════════
+function drawSparkline(canvasId,data,color){
+  var canvas=document.getElementById(canvasId);
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var W=canvas.offsetWidth||80;var H=canvas.offsetHeight||24;
+  canvas.width=W;canvas.height=H;
+  ctx.clearRect(0,0,W,H);
+  if(!data||data.length<2)return;
+  var max=Math.max.apply(null,data)||1;
+  var min=Math.min.apply(null,data);
+  var range=max-min||1;
+  var pts=data.map(function(v,i){
+    return{x:(i/(data.length-1))*W,y:H-((v-min)/range)*(H-4)-2};
+  });
+  // fill
+  ctx.beginPath();ctx.moveTo(pts[0].x,H);
+  pts.forEach(function(p){ctx.lineTo(p.x,p.y);});
+  ctx.lineTo(pts[pts.length-1].x,H);ctx.closePath();
+  var grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,color+'55');grad.addColorStop(1,color+'00');
+  ctx.fillStyle=grad;ctx.fill();
+  // line
+  ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+  pts.forEach(function(p){ctx.lineTo(p.x,p.y);});
+  ctx.strokeStyle=color;ctx.lineWidth=1.5;
+  ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke();
+  // dot at end
+  ctx.beginPath();ctx.arc(pts[pts.length-1].x,pts[pts.length-1].y,2.5,0,Math.PI*2);
+  ctx.fillStyle=color;ctx.fill();
+}
+function renderSparklines(){
+  // Build 7-day history arrays
+  var revData=[],profData=[],txnData=[],stockData=[];
+  for(var i=6;i>=0;i--){
+    var d=new Date();d.setDate(d.getDate()-i);
+    var key=getDateKey(d.getTime());
+    var daySales=sales.filter(function(s){return getDateKey(s.ts)===key;});
+    revData.push(daySales.reduce(function(s,x){return s+x.total;},0));
+    profData.push(daySales.reduce(function(s,x){return s+calcProfit(x);},0));
+    txnData.push(daySales.length);
+  }
+  // stock levels over time - just use products low/ok count
+  for(var j=0;j<7;j++) stockData.push(products.filter(function(p){return p.stock>0;}).length-(j*0));
+  drawSparkline('spark-sales',revData,'#00A67E');
+  drawSparkline('spark-profit',profData,'#F59E0B');
+  drawSparkline('spark-txns',txnData,'#3B82F6');
+  drawSparkline('spark-stock',stockData,'#EF4444');
+}
+
+// ═════════════════════════════════════
+//  ⚡ SWIPE TO DELETE CART
+// ═════════════════════════════════════
+function attachSwipe(itemId){
+  var row=document.getElementById('ci-row-'+itemId);
+  if(!row)return;
+  var startX=0,curX=0,swiping=false;
+  row.addEventListener('touchstart',function(e){
+    startX=e.touches[0].clientX;swiping=true;curX=0;
+  },{passive:true});
+  row.addEventListener('touchmove',function(e){
+    if(!swiping)return;
+    curX=e.touches[0].clientX-startX;
+    if(curX<0){row.style.transform='translateX('+Math.max(curX,-80)+'px)';}
+    else{row.style.transform='translateX(0)';}
+  },{passive:true});
+  row.addEventListener('touchend',function(){
+    if(curX<-60){
+      row.style.transform='translateX(-80px)';
+      setTimeout(function(){removeFromCart(itemId);},200);
+    }else{
+      row.style.transform='translateX(0)';
+    }
+    swiping=false;
+  });
+}
+
+// ═════════════════════════════════════
+//  📅 HISTORY DATE PICKER
+// ═════════════════════════════════════
+var histDateFilter=null;
+function setHistDate(val){
+  if(!val){histDateFilter=null;}
+  else{histDateFilter=val;}
+  renderHistory();
+}
+
+// PWA Manifest served as static file (manifest.json)
+
+// ═════════════════════════════════════
+//  PWA — SERVICE WORKER (static file)
+// ═════════════════════════════════════
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js',{scope:'/'})
+    .then(function(reg){ console.log('POSH SW registered ✅'); })
+    .catch(function(e){ console.log('SW registration skipped:', e.message); });
+}
+
+// ═════════════════════════════════════
+//  PWA — INSTALL PROMPT
+// ═════════════════════════════════════
+var _deferredInstall=null;
+window.addEventListener('beforeinstallprompt',function(e){
+  e.preventDefault();
+  _deferredInstall=e;
+  // Show banner after 3 seconds
+  setTimeout(function(){
+    var banner=document.getElementById('pwa-banner');
+    if(banner&&!localStorage.getItem('posh_pwa_dismissed')){
+      banner.classList.add('show');
+    }
+  },3000);
+});
+window.addEventListener('appinstalled',function(){
+  toast('🎉 POSH installed successfully!');
+  var banner=document.getElementById('pwa-banner');
+  if(banner) banner.classList.remove('show');
+  _deferredInstall=null;
+});
+function installPWA(){
+  var banner=document.getElementById('pwa-banner');
+  if(_deferredInstall){
+    _deferredInstall.prompt();
+    _deferredInstall.userChoice.then(function(result){
+      if(result.outcome==='accepted'){
+        toast('🎉 POSH is being installed!');
+      }
+      _deferredInstall=null;
+    });
+  } else {
+    // iOS instructions
+    showConfirm(
+      'Install on iPhone',
+      'Tap the Share button (□↑) at the bottom of Safari, then tap "Add to Home Screen" and tap Add.',
+      function(){},
+      false
+    );
+    document.getElementById('confirm-ok').textContent='Got it!';
+  }
+  if(banner) banner.classList.remove('show');
+}
+function dismissPWA(){
+  var banner=document.getElementById('pwa-banner');
+  if(banner) banner.classList.remove('show');
+  localStorage.setItem('posh_pwa_dismissed','1');
+}
+
+// iOS "Add to Home Screen" hint — show once for Safari users
+(function(){
+  var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isInStandalone=window.navigator.standalone===true;
+  var dismissed=localStorage.getItem('posh_ios_hint');
+  if(isIOS&&!isInStandalone&&!dismissed){
+    setTimeout(function(){
+      var banner=document.getElementById('pwa-banner');
+      if(banner){
+        banner.querySelector('.pwa-banner-title').textContent='Install on iPhone';
+        banner.querySelector('.pwa-banner-sub').textContent='Add to Home Screen for app experience';
+        banner.classList.add('show');
+      }
+    },4000);
+  }
+})();
+
+// ═════════════════════════════════════
+//  INIT
+// ═════════════════════════════════════
+// Auth is handled by firebase-auth.js
+// App initializes after successful login
+document.getElementById('header-date').textContent=nowDate();
+document.getElementById('sales-time').textContent=nowDate();
+</script>
+<!-- SYNC BANNER -->
+<div id="sync-banner" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);color:white;padding:7px 16px;border-radius:20px;font-size:12px;font-weight:600;z-index:700;white-space:nowrap;align-items:center;box-shadow:0 4px 16px rgba(0,0,0,0.2)"></div>
+<!-- Firebase Compat SDK — works without imports -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════
+//  POSH SaaS — Firebase Auth + Cloud Sync (Compat SDK)
+// ═══════════════════════════════════════════════════════
+var firebaseConfig={
+  apiKey:"__FIREBASE_API_KEY__",
+  authDomain:"__FIREBASE_AUTH_DOMAIN__",
+  projectId:"__FIREBASE_PROJECT_ID__",
+  storageBucket:"__FIREBASE_STORAGE_BUCKET__",
+  messagingSenderId:"__FIREBASE_MESSAGING_SENDER_ID__",
+  appId:"__FIREBASE_APP_ID__"
+};
+firebase.initializeApp(firebaseConfig);
+var auth=firebase.auth();
+var db=firebase.firestore();
+window._currentUser=null;
+
+function showSyncBanner(s){var el=document.getElementById('sync-banner');if(!el)return;var m={syncing:'☁️ Syncing...',synced:'✅ Saved to cloud',offline:'📴 Offline — saved locally',error:'⚠️ Sync failed'};var col={syncing:'#3B82F6',synced:'#00A67E',offline:'#F59E0B',error:'#EF4444'};el.textContent=m[s]||'';el.style.background=col[s]||'#00A67E';el.style.display='flex';if(s!=='syncing')setTimeout(function(){el.style.display='none';},2500);}
+function showAuthError(msg,tab,ok){var id=tab==='login'?'auth-login-error':'auth-error';var el=document.getElementById(id);if(!el)return;el.textContent=msg;el.style.color=ok?'var(--primary)':'var(--red)';el.style.display='block';}
+function setAuthLoading(loading,tab){var id=tab==='login'?'auth-login-btn':'auth-signup-btn';var el=document.getElementById(id);if(!el)return;el.disabled=loading;el.textContent=loading?(tab==='login'?'Signing in...':'Creating account...'):(tab==='login'?'Sign In':'Create Account');}
+function getAuthError(code){var e={'auth/email-already-in-use':'Email already registered. Sign in instead.','auth/invalid-email':'Please enter a valid email.','auth/weak-password':'Password must be at least 6 characters.','auth/user-not-found':'No account found with this email.','auth/wrong-password':'Wrong password. Try again.','auth/too-many-requests':'Too many attempts. Please wait.','auth/network-request-failed':'No internet connection.','auth/invalid-credential':'Wrong email or password.'};return e[code]||'Something went wrong. Please try again.';}
+
+function showApp(){
+  var authEl=document.getElementById('auth-screen');if(authEl)authEl.style.display='none';
+  var splash=document.getElementById('splash');if(splash){splash.style.display='flex';splash.classList.remove('hide');}
+  if(typeof loadData==='function')loadData();
+  setTimeout(function(){
+    if(splash){splash.classList.add('hide');setTimeout(function(){splash.style.display='none';},500);}
+    var appEl=document.getElementById('app');
+    if(appEl){appEl.style.display='flex';appEl.style.flexDirection='column';appEl.style.minHeight='100vh';}
+    var pin=document.getElementById('pin-screen');
+    if(pin)pin.style.cssText='display:flex!important;position:fixed;inset:0;z-index:999;background:var(--pin-bg)';
+    if(typeof renderDashboard==='function')renderDashboard();
+    if(typeof renderCats==='function')renderCats();
+    if(typeof renderSales==='function')renderSales();
+  },3000);
+}
+
+auth.onAuthStateChanged(function(user){
+  if(user){
+    window._currentUser=user;
+    console.log('POSH logged in:',user.email);
+    cloudLoadUser(user.uid,function(loaded){
+      showApp();
+      if(loaded)setTimeout(function(){if(typeof toast==='function')toast('☁️ Data synced from cloud!');},3600);
+    });
+  } else {
+    window._currentUser=null;
+    console.log('POSH logged out');
+    var a=document.getElementById('auth-screen');if(a)a.style.display='flex';
+    var ap=document.getElementById('app');if(ap)ap.style.display='none';
+    var p=document.getElementById('pin-screen');if(p)p.style.cssText='display:none!important';
+    var s=document.getElementById('splash');if(s)s.style.display='none';
+  }
+});
+
+window.poshSignUp=function(){
+  var name=(document.getElementById('auth-name').value||'').trim();
+  var shop=(document.getElementById('auth-shop').value||'').trim();
+  var email=(document.getElementById('auth-email').value||'').trim();
+  var pass=document.getElementById('auth-pass').value||'';
+  var confirm=document.getElementById('auth-confirm-pass').value||'';
+  if(!name){showAuthError('Please enter your name');return;}
+  if(!shop){showAuthError('Please enter your shop name');return;}
+  if(!email){showAuthError('Please enter your email');return;}
+  if(pass.length<6){showAuthError('Password must be at least 6 characters');return;}
+  if(pass!==confirm){showAuthError('Passwords do not match');return;}
+  setAuthLoading(true);
+  auth.createUserWithEmailAndPassword(email,pass)
+    .then(function(r){
+      return r.user.updateProfile({displayName:name}).then(function(){
+        return db.collection('shops').doc(r.user.uid).set({
+          shopName:shop,ownerName:name,email:email,
+          products:[],sales:[],expenses:[],debts:[],
+          dailyGoal:2000,userPin:'1234',darkMode:false,
+          idleMinutes:30,nextId:500,nextDebtId:1,
+          createdAt:new Date().toISOString(),
+          lastSync:new Date().toISOString(),version:3
+        });
+      });
+    })
+    .then(function(){window.shopName=document.getElementById('auth-shop').value.trim();setAuthLoading(false);})
+    .catch(function(e){setAuthLoading(false);showAuthError(getAuthError(e.code));});
+};
+
+window.poshSignIn=function(){
+  var email=(document.getElementById('auth-login-email').value||'').trim();
+  var pass=document.getElementById('auth-login-pass').value||'';
+  if(!email){showAuthError('Please enter your email','login');return;}
+  if(!pass){showAuthError('Please enter your password','login');return;}
+  setAuthLoading(true,'login');
+  auth.signInWithEmailAndPassword(email,pass)
+    .then(function(){setAuthLoading(false,'login');})
+    .catch(function(e){setAuthLoading(false,'login');showAuthError(getAuthError(e.code),'login');});
+};
+
+window.poshSignOut=function(){
+  if(typeof showConfirm==='function'){
+    showConfirm('Sign Out','Are you sure you want to sign out?',function(){
+      auth.signOut().then(function(){
+        localStorage.removeItem('posh_data');
+        window.products=[];window.sales=[];window.expenses=[];window.debts=[];window.shopName='POSH';
+        if(typeof toast==='function')toast('👋 Signed out!');
+      });
+    },false);
+  } else { auth.signOut(); }
+};
+
+window.poshForgotPassword=function(){
+  var email=(document.getElementById('auth-login-email').value||'').trim();
+  if(!email){showAuthError('Enter your email above first','login');return;}
+  auth.sendPasswordResetEmail(email)
+    .then(function(){showAuthError('✅ Reset link sent! Check your email.','login',true);})
+    .catch(function(e){showAuthError(getAuthError(e.code),'login');});
+};
+
+window.cloudLoadUser=function(uid,cb){
+  db.collection('shops').doc(uid).get()
+    .then(function(snap){
+      if(!snap.exists){if(cb)cb(false);return;}
+      var d=snap.data();
+      var lr=localStorage.getItem('posh_data');
+      var ld=lr?JSON.parse(lr):{};
+      var ct=d.lastSync?new Date(d.lastSync).getTime():0;
+      var lt=ld.lastSync?new Date(ld.lastSync).getTime():0;
+      if(ct>lt){
+        if(d.products)window.products=d.products;
+        if(d.sales)window.sales=d.sales;
+        if(d.expenses)window.expenses=d.expenses;
+        if(d.debts)window.debts=d.debts;
+        if(d.dailyGoal)window.dailyGoal=d.dailyGoal;
+        if(d.shopName)window.shopName=d.shopName;
+        if(d.userPin)window.userPin=d.userPin;
+        if(typeof d.darkMode==='boolean')window.darkMode=d.darkMode;
+        if(d.idleMinutes)window.idleMinutes=d.idleMinutes;
+        if(d.nextId)window.nextId=d.nextId;
+        if(d.nextDebtId)window.nextDebtId=d.nextDebtId;
+        localStorage.setItem('posh_data',JSON.stringify(d));
+        if(cb)cb(true);
+      } else { if(cb)cb(false); }
+    })
+    .catch(function(e){console.warn('Cloud load:',e);if(cb)cb(false);});
+};
+
+var _st=null;
+window.cloudSync=function(){clearTimeout(_st);_st=setTimeout(_doSync,2000);};
+function _doSync(){
+  if(!window._currentUser)return;
+  if(!navigator.onLine){showSyncBanner('offline');return;}
+  showSyncBanner('syncing');
+  db.collection('shops').doc(window._currentUser.uid).set({
+    products:window.products||[],sales:window.sales||[],
+    expenses:window.expenses||[],debts:window.debts||[],
+    dailyGoal:window.dailyGoal||2000,shopName:window.shopName||'POSH',
+    userPin:window.userPin||'1234',darkMode:window.darkMode||false,
+    idleMinutes:window.idleMinutes||30,nextId:window.nextId||500,
+    nextDebtId:window.nextDebtId||1,
+    lastSync:new Date().toISOString(),version:3
+  }).then(function(){showSyncBanner('synced');}).catch(function(){showSyncBanner('error');});
+}
+
+window.showAuthTab=function(tab){
+  document.getElementById('auth-signup-form').style.display=tab==='signup'?'flex':'none';
+  document.getElementById('auth-login-form').style.display=tab==='login'?'flex':'none';
+  document.getElementById('auth-tab-signup').className='auth-tab'+(tab==='signup'?' active':'');
+  document.getElementById('auth-tab-login').className='auth-tab'+(tab==='login'?' active':'');
+  ['auth-error','auth-login-error'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+};
+
+window.addEventListener('online',function(){if(typeof cloudSync==='function')cloudSync();});
+window.addEventListener('offline',function(){showSyncBanner('offline');});
+console.log('POSH Firebase Auth ready ✅');
+</script>
+</body>
+</html>
